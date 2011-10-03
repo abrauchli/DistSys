@@ -1,7 +1,13 @@
 package ch.ethz.inf.vs.android.g99.a1;
 
+import java.util.List;
+
 import android.app.Activity;
+import android.hardware.Sensor;
+import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 
 public class SensorsMain extends Activity {
     /** Called when the activity is first created. */
@@ -9,5 +15,13 @@ public class SensorsMain extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
+        SensorManager m = (SensorManager) getSystemService(SENSOR_SERVICE);
+        List<Sensor> sensors = m.getSensorList(SensorManager.SENSOR_ALL);
+        String[] sens = new String[sensors.size()];
+        for (int i=0; i < sensors.size(); ++i) {
+        	sens[i] = sensors.get(i).getName();
+        }
+        ListView lv = (ListView) findViewById(R.id.lv_sensorlist);
+        lv.setAdapter(new ArrayAdapter<String>(this, R.id.lv_sensorlist, sens));
     }
 }
