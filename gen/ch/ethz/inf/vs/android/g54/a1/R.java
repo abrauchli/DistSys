@@ -5,7 +5,7 @@
  * should not be modified by hand.
  */
 
-package ch.ethz.inf.vs.android.g99.a1;
+package ch.ethz.inf.vs.android.g54.a1;
 
 public final class R {
     public static final class attr {
