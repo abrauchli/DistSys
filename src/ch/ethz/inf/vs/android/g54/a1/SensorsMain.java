@@ -18,12 +18,12 @@ public class SensorsMain extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         SensorManager m = (SensorManager) getSystemService(SENSOR_SERVICE);
-        List<Sensor> sensors = m.getSensorList(SensorManager.SENSOR_ALL);
+        List<Sensor> sensors = m.getSensorList(Sensor.TYPE_ALL);
         String[] sens = new String[sensors.size()];
         for (int i=0; i < sensors.size(); ++i) {
         	sens[i] = sensors.get(i).getName();
         }
         ListView lv = (ListView) findViewById(R.id.lv_sensorlist);
-        lv.setAdapter(new ArrayAdapter<String>(this, R.id.lv_sensorlist, sens));
+        lv.setAdapter(new ArrayAdapter<String>(this, R.layout.li_sensor, sens));
     }
 }

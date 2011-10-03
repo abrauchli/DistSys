@@ -4,5 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     >
-    <ListView android:layout_width="match_parent" android:id="@+id/lv_sensorlist" android:layout_height="match_parent"></ListView>
+    <ListView android:layout_width="match_parent" android:id="@+id/lv_sensorlist" android:layout_height="match_parent">
+        <!-- Preview: listitem=@layout/li_sensor -->
+    </ListView>
 </LinearLayout>
