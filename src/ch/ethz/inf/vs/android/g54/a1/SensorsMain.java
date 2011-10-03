@@ -1,6 +1,8 @@
-package ch.ethz.inf.vs.android.g99.a1;
+package ch.ethz.inf.vs.android.g54.a1;
 
 import java.util.List;
+
+import ch.ethz.inf.vs.android.g99.a1.R;
 
 import android.app.Activity;
 import android.hardware.Sensor;
