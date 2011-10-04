@@ -4,7 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     >
-    <ListView android:layout_width="match_parent" android:id="@+id/lv_sensorlist" android:layout_height="match_parent">
+    <ListView android:layout_width="match_parent" android:id="@+id/lv_sensorlist" android:layout_height="422dp">
         <!-- Preview: listitem=@layout/li_sensor -->
     </ListView>
+    <Button android:text="Button" android:layout_height="wrap_content" android:layout_width="match_parent" android:id="@+id/btn_actuators" android:onClick="btActuatorClick"></Button>
 </LinearLayout>

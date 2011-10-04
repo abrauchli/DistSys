@@ -1,0 +1,12 @@
+package ch.ethz.inf.vs.android.g54.a1;
+
+import android.app.Activity;
+import android.os.Bundle;
+
+public class ActuatorsMain extends Activity {
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.main);
+    }
+}
