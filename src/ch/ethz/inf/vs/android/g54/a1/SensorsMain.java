@@ -36,7 +36,7 @@ public class SensorsMain extends Activity {
 					long arg3) {
 				sensors.get(arg2);
 				Intent sd = new Intent(me, SensorsDetail.class);
-				sd.setAction((String) ((TextView)arg1).getText());
+				sd.putExtra("sensor", ((String) ((TextView)arg1).getText()));
 				me.startActivity(sd);
 			}
 		});
