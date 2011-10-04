@@ -12,6 +12,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 
 public class SensorsMain extends Activity {
 	
@@ -35,6 +36,7 @@ public class SensorsMain extends Activity {
 					long arg3) {
 				sensors.get(arg2);
 				Intent sd = new Intent(me, SensorsDetail.class);
+				sd.setAction((String) ((TextView)arg1).getText());
 				me.startActivity(sd);
 			}
 		});
