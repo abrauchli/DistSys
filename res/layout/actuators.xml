@@ -5,5 +5,13 @@
   android:layout_width="match_parent"
   android:layout_height="match_parent">
     <SeekBar android:layout_height="wrap_content" android:layout_width="match_parent" android:id="@+id/seek_duration"></SeekBar>
+    <ToggleButton android:layout_height="wrap_content" android:text="ToggleButton" android:layout_width="match_parent" android:id="@+id/tgl_flash" android:onClick="onClickFlash"></ToggleButton>
+	<TextView android:layout_width="match_parent"
+		android:layout_height="wrap_content" android:gravity="center_horizontal"
+		android:textStyle="bold" android:text="@string/txt_sound"
+		android:paddingTop="30dip" />
+		<Button android:id="@+id/btn_sound" android:layout_width="match_parent"
+	android:layout_height="wrap_content" android:text="@string/btn_sound"
+	android:onClick="onClickSound" />
     
 </LinearLayout>

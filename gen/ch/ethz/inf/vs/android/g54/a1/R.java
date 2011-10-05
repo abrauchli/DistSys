@@ -14,10 +14,12 @@ public final class R {
         public static final int icon=0x7f020000;
     }
     public static final class id {
-        public static final int btn_actuators=0x7f050002;
-        public static final int lv_sensor=0x7f050003;
-        public static final int lv_sensorlist=0x7f050001;
-        public static final int seek_duration=0x7f050000;
+        public static final int btn_actuators=0x7f060004;
+        public static final int btn_sound=0x7f060002;
+        public static final int lv_sensor=0x7f060005;
+        public static final int lv_sensorlist=0x7f060003;
+        public static final int seek_duration=0x7f060000;
+        public static final int tgl_flash=0x7f060001;
     }
     public static final class layout {
         public static final int actuators=0x7f030000;
@@ -25,8 +27,14 @@ public final class R {
         public static final int main=0x7f030002;
         public static final int sensor=0x7f030003;
     }
+    public static final class raw {
+        public static final int bark=0x7f040000;
+    }
     public static final class string {
-        public static final int app_name=0x7f040001;
-        public static final int hello=0x7f040000;
+        public static final int app_name=0x7f050001;
+        public static final int btn_sound=0x7f050003;
+        public static final int btn_sound_stop=0x7f050004;
+        public static final int hello=0x7f050000;
+        public static final int txt_sound=0x7f050002;
     }
 }

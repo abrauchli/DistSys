@@ -2,4 +2,7 @@
 <resources>
     <string name="hello">Hello World, SensorsMain!</string>
     <string name="app_name">VS_G54_A1_1</string>
+    <string name="txt_sound">Play sound</string>
+    <string name="btn_sound">Play</string>
+    <string name="btn_sound_stop">Stop</string>
 </resources>
