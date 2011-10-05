@@ -5,6 +5,8 @@ import android.hardware.Camera;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Vibrator;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.SeekBar;
@@ -106,6 +108,51 @@ public class ActuatorsMain extends Activity {
 				mp.prepareAsync();
 			} catch (IllegalStateException e) { }
 			((Button) v).setText(R.string.btn_sound);
+		}
+	}
+
+	///
+	/// Options Menu
+	///
+	
+	private static final int LOOPING_MENU_ID = Menu.FIRST;
+	private static final int ONCE_MENU_ID = Menu.FIRST + 1;
+	private static final int BACK_MENU_ID = Menu.FIRST + 2;
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		super.onCreateOptionsMenu(menu);
+		menu.add(0, LOOPING_MENU_ID, 0, "Looping");
+		menu.add(0, ONCE_MENU_ID, 0, "Once");
+		menu.add(0, BACK_MENU_ID, 0, "Back");
+		return true;
+	}
+
+	@Override
+	public boolean onPrepareOptionsMenu(Menu menu) {
+		super.onPrepareOptionsMenu(menu);
+		if (mp.isPlaying())
+			return false;
+		else
+			return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case LOOPING_MENU_ID:
+			mp = MediaPlayer.create(this, R.raw.bark);
+			mp.setLooping(true);
+			return true;
+		case ONCE_MENU_ID:
+			mp = MediaPlayer.create(this, R.raw.bark);
+			mp.setLooping(false);
+			return true;
+		case BACK_MENU_ID:
+			finish();
+			return true;
+		default:
+			return super.onOptionsItemSelected(item);
 		}
 	}
 
