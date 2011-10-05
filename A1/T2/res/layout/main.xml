@@ -7,5 +7,5 @@
     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:textAppearance="?android:attr/textAppearanceMedium" android:id="@+id/txt_delay" android:text="Delay"></TextView>
     <SeekBar android:layout_height="wrap_content" android:layout_width="match_parent" android:id="@+id/seek_delay"></SeekBar>
     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:textAppearance="?android:attr/textAppearanceMedium" android:layout_marginTop="20pt" android:id="@+id/txt_alarm" android:text="Service status"></TextView>
-    <ToggleButton android:layout_height="wrap_content" android:text="ToggleButton" android:id="@+id/tgl_alarm" android:layout_width="match_parent"></ToggleButton>
+    <ToggleButton android:layout_height="wrap_content" android:text="ToggleButton" android:id="@+id/tgl_alarm" android:layout_width="match_parent" android:onClick="onAlarmClick"></ToggleButton>
 </LinearLayout>
