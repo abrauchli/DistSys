@@ -10,7 +10,6 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.location.GpsStatus.NmeaListener;
 import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
@@ -53,8 +52,7 @@ public class AntiTheftService extends Service implements SensorEventListener {
 	@Override
 	public void onDestroy() {
 		// Tell the user we stopped.
-		Toast.makeText(this, R.string.local_service_stopped, Toast.LENGTH_SHORT)
-				.show();
+		Toast.makeText(this, R.string.local_service_stopped, Toast.LENGTH_SHORT).show();
 		mNM.cancel(0);
 	}
 
@@ -91,10 +89,36 @@ public class AntiTheftService extends Service implements SensorEventListener {
 	public void onAccuracyChanged(Sensor s, int acc) {
 	}
 
+	private float[] values = null;
+	private long timestamp;
+	private boolean trigger = false;
+	private float threshold = 3.0f;
+
 	@Override
 	public void onSensorChanged(SensorEvent evt) {
-		// TODO
-		ringAlarm();
+		if (values != null) {
+			long diff = evt.timestamp - timestamp;
+			for (int i = 0; i < evt.values.length; ++i) {
+				if (Math.abs(values[i] - evt.values[i]) > threshold) {
+					if (trigger) {
+						if (diff > 31415926535l /* 3.14s */) {
+							ringAlarm();
+						}
+					} else {
+						trigger = true;
+						threshold = 2.0f;
+						timestamp = evt.timestamp;
+					}
+					break;
+				}
+			}
+			if (trigger && diff > 10 * 1000000000) {
+				// restart after 10s of quiet
+				trigger = false;
+				threshold = 3.0f;
+			}
+		}
+		values = evt.values;
 	}
 
 }
