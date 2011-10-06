@@ -68,6 +68,9 @@ public class AntiTheftService extends Service implements SensorEventListener {
 	}
 
 	private void ringAlarm() {
+		SensorManager sm = (SensorManager) getSystemService(SENSOR_SERVICE);
+		sm.unregisterListener(this, mSensor);
+		
 		int icon = R.drawable.icon;
 
 		notification = new Notification(icon, "Anti Theft Service started", System.currentTimeMillis());
