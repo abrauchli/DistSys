@@ -89,36 +89,33 @@ public class AntiTheftService extends Service implements SensorEventListener {
 	public void onAccuracyChanged(Sensor s, int acc) {
 	}
 
-	private float[] values = null;
 	private long timestamp;
 	private boolean trigger = false;
-	private float threshold = 3.0f;
+	private float[] threshold = { 2.0f, 2.0f, 11.0f };
 
 	@Override
 	public void onSensorChanged(SensorEvent evt) {
-		if (values != null) {
-			long diff = evt.timestamp - timestamp;
-			for (int i = 0; i < evt.values.length; ++i) {
-				if (Math.abs(values[i] - evt.values[i]) > threshold) {
-					if (trigger) {
-						if (diff > 31415926535l /* 3.14s */) {
-							ringAlarm();
-						}
-					} else {
-						trigger = true;
-						threshold = 2.0f;
-						timestamp = evt.timestamp;
+		long diff = evt.timestamp - timestamp;
+		for (int i = 0; i < evt.values.length; ++i) {
+			if (Math.abs(evt.values[i]) > threshold[i]) {
+				if (trigger) {
+					if (diff > 3141592653l /* 3.14s */) {
+						ringAlarm();
 					}
-					break;
+				} else {
+					trigger = true;
+					threshold = new float[] { 1.0f, 1.0f, 10.0f };
+					timestamp = evt.timestamp;
+					diff = 0;
 				}
-			}
-			if (trigger && diff > 10 * 1000000000) {
-				// restart after 10s of quiet
-				trigger = false;
-				threshold = 3.0f;
+				break;
 			}
 		}
-		values = evt.values;
+		if (trigger && diff > 10 * 1000000000l) {
+			// restart after 10s of quiet
+			trigger = false;
+			threshold = new float[] { 2.0f, 2.0f, 11.0f };
+		}
 	}
 
 }
