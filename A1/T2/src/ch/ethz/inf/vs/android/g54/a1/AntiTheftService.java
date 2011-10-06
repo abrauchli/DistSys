@@ -61,12 +61,14 @@ public class AntiTheftService extends Service implements SensorEventListener {
 		return mBinder;
 	}
 
+	/** Init the alarm activating sensor */
 	private void initSensor() {
 		SensorManager sm = (SensorManager) getSystemService(SENSOR_SERVICE);
 		mSensor = sm.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 		sm.registerListener(this, mSensor, SensorManager.SENSOR_DELAY_NORMAL);
 	}
 
+	/** Sets an unclearable message */
 	private void ringAlarm() {
 		SensorManager sm = (SensorManager) getSystemService(SENSOR_SERVICE);
 		sm.unregisterListener(this, mSensor);
@@ -92,12 +94,16 @@ public class AntiTheftService extends Service implements SensorEventListener {
 	public void onAccuracyChanged(Sensor s, int acc) {
 	}
 
+	/** The timestamp of the first event above the threshold */
 	private long timestamp;
+	/** Whether we're in the grace period before alarm activation */
 	private boolean trigger = false;
+	/** The current threshold values that will trigger the (pre-)alarm period */
 	private float[] threshold = { 2.0f, 2.0f, 11.0f };
 
 	@Override
 	public void onSensorChanged(SensorEvent evt) {
+		// the time difference between the first event above the threshold and the current one
 		long diff = evt.timestamp - timestamp;
 		for (int i = 0; i < evt.values.length; ++i) {
 			if (Math.abs(evt.values[i]) > threshold[i]) {
