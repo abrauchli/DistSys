@@ -2,12 +2,15 @@ package ch.ethz.inf.vs.android.g54.a1;
 
 import android.app.Notification;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.location.GpsStatus.NmeaListener;
 import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
@@ -21,6 +24,7 @@ public class AntiTheftService extends Service implements SensorEventListener {
 
 	private NotificationManager mNM;
 	Sensor mSensor;
+	private Notification notification;
 
 	/**
 	 * Class for clients to access. Because we know this service always runs in
@@ -51,6 +55,7 @@ public class AntiTheftService extends Service implements SensorEventListener {
 		// Tell the user we stopped.
 		Toast.makeText(this, R.string.local_service_stopped, Toast.LENGTH_SHORT)
 				.show();
+		mNM.cancel(0);
 	}
 
 	@Override
@@ -65,9 +70,20 @@ public class AntiTheftService extends Service implements SensorEventListener {
 	}
 
 	private void ringAlarm() {
-		Notification notification = new Notification();
-		notification.tickerText = "THIEF ALARM";
+		int icon = R.drawable.icon;
+
+		notification = new Notification(icon, "Anti Theft Service started", System.currentTimeMillis());
+		notification.tickerText = "Anti Theft Service started";
 		notification.flags = Notification.FLAG_ONGOING_EVENT | Notification.FLAG_NO_CLEAR;
+		
+		Context context = getApplicationContext();
+		CharSequence contentTitle = "Anti Theft Service";
+		CharSequence contentText = "Service is active.";
+		Intent notificationIntent = new Intent(this, AntiTheftService.class);
+		PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
+
+		notification.setLatestEventInfo(context, contentTitle, contentText, contentIntent);
+		
 		mNM.notify(0, notification);
 	}
 
@@ -78,6 +94,7 @@ public class AntiTheftService extends Service implements SensorEventListener {
 	@Override
 	public void onSensorChanged(SensorEvent evt) {
 		// TODO
+		ringAlarm();
 	}
 
 }
