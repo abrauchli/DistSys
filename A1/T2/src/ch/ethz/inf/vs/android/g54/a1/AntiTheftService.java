@@ -14,7 +14,6 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Binder;
 import android.os.IBinder;
-import android.widget.Toast;
 
 /** Service hosting the alarm logic. */
 public class AntiTheftService extends Service implements SensorEventListener {
@@ -135,9 +134,6 @@ public class AntiTheftService extends Service implements SensorEventListener {
 		
 		/* Stop the media player. */
 		mediaPlayer.stop();
-		
-		/* Inform the user. */
-		Toast.makeText(this, R.string.msg_service_stopped, Toast.LENGTH_SHORT).show();
 	}
 
 	/** Return the communication channel to the service. */
