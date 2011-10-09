@@ -131,7 +131,7 @@ public class AntiTheftService extends Service implements SensorEventListener {
 		mediaPlayer.stop();
 		
 		/* Inform the user. */
-		Toast.makeText(this, R.string.local_service_stopped, Toast.LENGTH_SHORT).show();
+		Toast.makeText(this, R.string.msg_service_stopped, Toast.LENGTH_SHORT).show();
 	}
 
 	/** Return the communication channel to the service. */

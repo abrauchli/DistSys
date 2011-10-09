@@ -32,10 +32,10 @@ public final class R {
         public static final int alarm_on=0x7f050007;
         public static final int app_name=0x7f050000;
         public static final int arm_alarm=0x7f050005;
-        public static final int delay=0x7f050004;
         public static final int disarm_alarm=0x7f050006;
-        public static final int local_service_stopped=0x7f050001;
-        public static final int service_status=0x7f050003;
+        public static final int msg_service_stopped=0x7f050001;
         public static final int start_delay=0x7f050002;
+        public static final int title_delay=0x7f050004;
+        public static final int title_service_status=0x7f050003;
     }
 }
