@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">VS_G54_A1_2</string>
-    <string name="local_service_stopped">AntiTheftService stopped</string>
+    <string name="app_name">Anti Theft App</string>
+    <string name="local_service_stopped">Anti Theft Service stopped</string>
+    <string name="start_delay">Current delay: 0sec</string>
+    <string name="service_status">Anti Theft Service Status</string>
+    <string name="delay">Delay until alarm is triggered</string>
+    <string name="arm">ARM</string>
+    <string name="disarm">DISARM</string>
+    <string name="on">Service is ON!</string>
+    <string name="off">Service is off.</string>
 </resources>

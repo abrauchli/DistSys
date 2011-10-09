@@ -14,16 +14,28 @@ public final class R {
         public static final int icon=0x7f020000;
     }
     public static final class id {
-        public static final int seek_delay=0x7f050001;
-        public static final int tgl_alarm=0x7f050003;
-        public static final int txt_alarm=0x7f050002;
-        public static final int txt_delay=0x7f050000;
+        public static final int btn_on_off=0x7f060004;
+        public static final int current_delay=0x7f060002;
+        public static final int seek_delay=0x7f060001;
+        public static final int service_status=0x7f060005;
+        public static final int txt_alarm=0x7f060003;
+        public static final int txt_delay=0x7f060000;
     }
     public static final class layout {
         public static final int main=0x7f030000;
     }
+    public static final class raw {
+        public static final int bark=0x7f040000;
+    }
     public static final class string {
-        public static final int app_name=0x7f040000;
-        public static final int local_service_stopped=0x7f040001;
+        public static final int app_name=0x7f050000;
+        public static final int arm=0x7f050005;
+        public static final int delay=0x7f050004;
+        public static final int disarm=0x7f050006;
+        public static final int local_service_stopped=0x7f050001;
+        public static final int off=0x7f050008;
+        public static final int on=0x7f050007;
+        public static final int service_status=0x7f050003;
+        public static final int start_delay=0x7f050002;
     }
 }
