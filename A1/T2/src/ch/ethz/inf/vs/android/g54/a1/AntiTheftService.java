@@ -14,7 +14,6 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Binder;
 import android.os.IBinder;
-import android.util.Log;
 import android.widget.Toast;
 
 /** Service hosting the alarm logic. */
@@ -31,6 +30,7 @@ public class AntiTheftService extends Service implements SensorEventListener {
 	private Sensor accelerometer;
 	private MediaPlayer mediaPlayer;
 	private AudioManager audioManager;
+	private SensorManager sensorManager;
 	
 	/* 
 	 * The timestamp of the first event above the 
@@ -75,6 +75,7 @@ public class AntiTheftService extends Service implements SensorEventListener {
 		audioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
 		notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 		mediaPlayer = MediaPlayer.create(this, R.raw.bark);
+		sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 		
 		/* Sets up the media player. */
 		mediaPlayer.setVolume(10.0f, 10.0f);
@@ -91,19 +92,17 @@ public class AntiTheftService extends Service implements SensorEventListener {
 			return START_STICKY;
 		}
 		
-		Log.i("LocalService", "Received start id " + startId + ": " + intent);
+		/* Use accelerometer to detect deliberate movement. */
+		accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+		sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
 		
-		SensorManager sm = (SensorManager) getSystemService(SENSOR_SERVICE);
-		accelerometer = sm.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-		sm.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
-		
+		/* Sets the delay. */
 		if (intent.hasExtra("delay")) {
 			delay = intent.getExtras().getInt("delay");
 		}
 		
-		int icon = R.drawable.icon;
-
-		notification = new Notification(icon, "Anti Theft Service started", System.currentTimeMillis());
+		/* Notifies the user that the Anti Theft Service was started. */
+		notification = new Notification(R.drawable.icon, "Anti Theft Service started", System.currentTimeMillis());
 		notification.tickerText = "Anti Theft Service started";
 		notification.flags = Notification.FLAG_ONGOING_EVENT | Notification.FLAG_NO_CLEAR;
 		
@@ -117,22 +116,31 @@ public class AntiTheftService extends Service implements SensorEventListener {
 		
 		notificationManager.notify(0, notification);
 		
-		// We want this service to continue running until it is explicitly
-		// stopped, so return sticky.
+		/* 
+		 * We want this service to continue running until it is 
+		 * explicitly stopped, so return sticky.
+		 */
 		return START_STICKY;
 	}
 
+	/** 
+	 * Called to notify the service that it is no longer used and 
+	 * is being removed.
+	 */
 	@Override
 	public void onDestroy() {
+		/* Delete all issued notifications. */
 		notificationManager.cancel(0);
 		notificationManager.cancel(1);
+		
+		/* Stop the media player. */
 		mediaPlayer.stop();
-		audioManager.setSpeakerphoneOn(false);
-		// Tell the user we stopped.
+		
+		/* Inform the user. */
 		Toast.makeText(this, R.string.local_service_stopped, Toast.LENGTH_SHORT).show();
 	}
 
-	/** */
+	/** Return the communication channel to the service. */
 	@Override
 	public IBinder onBind(Intent intent) {
 		return mBinder;
@@ -144,14 +152,13 @@ public class AntiTheftService extends Service implements SensorEventListener {
 		 * Unregister the accelerometer to inhibit calls to onAccuracyChanged and 
 		 * onSensorChanged after the alarm was triggered.
 		 */
-		SensorManager sm = (SensorManager) getSystemService(SENSOR_SERVICE);
-		sm.unregisterListener(this, accelerometer);
+		sensorManager.unregisterListener(this, accelerometer);
 		
 		/* 
 		 * Activates the speaker phone if a Bluetooth head set or
 		 * wired headphones are connected. Does not work although 
 		 * the API was used according to the documentation.
-		 * */
+		 */
 		if (audioManager.isBluetoothA2dpOn() || audioManager.isWiredHeadsetOn()) {
 			audioManager.setSpeakerphoneOn(true);
 		}
@@ -169,41 +176,46 @@ public class AntiTheftService extends Service implements SensorEventListener {
 	/** Called when accelerometer values have changed. */
 	@Override
 	public void onSensorChanged(SensorEvent evt) {
-		// the time difference between the first event above the threshold and the current one
-		long diff = evt.timestamp - timeStamp;
-		for (int i = 0; i < evt.values.length; ++i) {
-			if (Math.abs(evt.values[i]) > threshold[i]) {
-				if (is_trigger_activated) {
-					if (diff > 5 * 1000000000l) {
-						timeStamp2 = evt.timestamp;
-						
-						int icon = R.drawable.icon;
+		/* 
+		 * The time difference between the first event 
+		 * above the threshold and the current one 
+		 */
+		long difference = evt.timestamp - timeStamp;
+		
+		/* Iterate through all axes of the accelerometer */
+		if (Math.abs(evt.values[0]) > threshold[0] || 
+				Math.abs(evt.values[1]) > threshold[1] || 
+				Math.abs(evt.values[2]) > threshold[2]) {
+			if (is_trigger_activated) {
+				if (difference > 5 * 1000000000l) {
+					timeStamp2 = evt.timestamp;
+					
+					int icon = R.drawable.icon;
 
-						Notification notification = new Notification(icon, "THEFT ALARM!", System.currentTimeMillis());
-						notification.tickerText = "THEFT ALARM!";
-						
-						Context context = getApplicationContext();
-						CharSequence contentTitle = "Anti Theft Service";
-						CharSequence contentText = "THEFT ALARM!";
-						Intent notificationIntent = new Intent(this, AntiTheftService.class);
-						PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
-						
-						notification.setLatestEventInfo(context, contentTitle, contentText, contentIntent);
-						
-						notificationManager.notify(1, notification);
-						
-						if (diff > (5 + delay) * 1000000000l) {
-							ringAlarm();
-						}
+					Notification notification = new Notification(icon, "THEFT ALARM!", System.currentTimeMillis());
+					notification.tickerText = "THEFT ALARM!";
+					
+					Context context = getApplicationContext();
+					CharSequence contentTitle = "Anti Theft Service";
+					CharSequence contentText = "THEFT ALARM!";
+					Intent notificationIntent = new Intent(this, AntiTheftService.class);
+					PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
+					
+					notification.setLatestEventInfo(context, contentTitle, contentText, contentIntent);
+					
+					notificationManager.notify(1, notification);
+					
+					if (difference > (5 + delay) * 1000000000l) {
+						ringAlarm();
 					}
-				} else {
-					is_trigger_activated = true;
-					threshold = new float[] { 1.0f, 1.0f, 10.0f };
-					timeStamp = evt.timestamp;
-					diff = 0;
 				}
-				return;
+			} else {
+				is_trigger_activated = true;
+				threshold = new float[] { 1.0f, 1.0f, 10.0f };
+				timeStamp = evt.timestamp;
+				difference = 0;
 			}
+			return;
 		}
 		if (is_trigger_activated && (evt.timestamp - timeStamp2) > 10 * 1000000000l) {
 			// restart after 10s of quiet
