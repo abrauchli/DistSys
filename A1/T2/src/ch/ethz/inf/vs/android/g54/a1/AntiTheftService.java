@@ -19,12 +19,6 @@ import android.widget.Toast;
 /** Service hosting the alarm logic. */
 public class AntiTheftService extends Service implements SensorEventListener {
 
-	/* 
-	 * This is the object that receives interactions from clients.
-	 * See RemoteService for a more complete example.
-	 */
-	private final IBinder mBinder = new LocalBinder();
-	
 	private NotificationManager notificationManager;
 	private Notification notification;
 	private Sensor accelerometer;
@@ -33,19 +27,19 @@ public class AntiTheftService extends Service implements SensorEventListener {
 	private SensorManager sensorManager;
 	
 	/* 
-	 * The timestamp of the first event above the 
+	 * The time stamp of the first event above the 
 	 * threshold of the accelerometer.
 	 */
 	private long timeStamp;
 	
 	/* 
-	 * The timestamp of the first detection of 
+	 * The time stamp of the first detection of 
 	 * deliberate movement.
 	 */
 	private long timeStamp2;
 	
 	/* Whether we're in the grace period before alarm activation */
-	private boolean is_trigger_activated = false;
+	private boolean isMovementDetected = false;
 	
 	/* The current threshold values that will trigger 
 	 * the (pre-)alarm period.
@@ -143,7 +137,7 @@ public class AntiTheftService extends Service implements SensorEventListener {
 	/** Return the communication channel to the service. */
 	@Override
 	public IBinder onBind(Intent intent) {
-		return mBinder;
+		return null;
 	}
 
 	/** Starts the alarm. */
@@ -182,17 +176,28 @@ public class AntiTheftService extends Service implements SensorEventListener {
 		 */
 		long difference = evt.timestamp - timeStamp;
 		
-		/* Iterate through all axes of the accelerometer */
+		/* 
+		 * Check if one of the axes of the accelerometer
+		 * is above the predefined threshold.
+		 */
 		if (Math.abs(evt.values[0]) > threshold[0] || 
 				Math.abs(evt.values[1]) > threshold[1] || 
 				Math.abs(evt.values[2]) > threshold[2]) {
-			if (is_trigger_activated) {
+			if (isMovementDetected) {
+				/* Case movement already detected. */
+				
+				/* Check if deliberate movement. */
 				if (difference > 5 * 1000000000l) {
+					/* Case deliberate movement.*/
+					
+					/* 
+					 * Adjust the time stamp to the first point in time the 
+					 * deliberate movement was detected.
+					 */
 					timeStamp2 = evt.timestamp;
 					
-					int icon = R.drawable.icon;
-
-					Notification notification = new Notification(icon, "THEFT ALARM!", System.currentTimeMillis());
+					/* Notifies the user that a potential theft was detected */
+					Notification notification = new Notification(R.drawable.icon, "THEFT ALARM!", System.currentTimeMillis());
 					notification.tickerText = "THEFT ALARM!";
 					
 					Context context = getApplicationContext();
@@ -205,22 +210,50 @@ public class AntiTheftService extends Service implements SensorEventListener {
 					
 					notificationManager.notify(1, notification);
 					
+					/* Check if the delay to disarm the alarm has elapsed. */
 					if (difference > (5 + delay) * 1000000000l) {
+						/* Case delay has elapsed. */
+						
+						/* Play an alarm sound. */
 						ringAlarm();
 					}
 				}
 			} else {
-				is_trigger_activated = true;
+				/* Case movement not detected. */
+				
+				isMovementDetected = true;
+				
+				/* 
+				 * Decrease threshold to increase sensitivity of the
+				 * movement detection.
+				 */
 				threshold = new float[] { 1.0f, 1.0f, 10.0f };
+				
+				/* 
+				 * Adjust the time stamp to the first point in time the 
+				 * movement was detected.
+				 */
 				timeStamp = evt.timestamp;
+				
+				/* Reset difference to the initial value. */
 				difference = 0;
 			}
 			return;
 		}
-		if (is_trigger_activated && (evt.timestamp - timeStamp2) > 10 * 1000000000l) {
-			// restart after 10s of quiet
-			is_trigger_activated = false;
+		
+		/* Check if enough time (10sec) has elapsed to reset the alarm. */
+		if (isMovementDetected && (evt.timestamp - timeStamp2) > 10 * 1000000000l) {
+			/* Case reset alarm. */
+			
+			isMovementDetected = false;
+			
+			/* 
+			 * Increase threshold to decrease sensitivity of the
+			 * movement detection.
+			 */
 			threshold = new float[] { 2.0f, 2.0f, 11.0f };
+			
+			/* Cancel the notification reporting a potential theft. */
 			notificationManager.cancel(1);
 		}
 	}
