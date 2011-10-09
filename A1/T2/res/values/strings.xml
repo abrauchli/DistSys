@@ -5,8 +5,8 @@
     <string name="start_delay">Current delay: 0sec</string>
     <string name="service_status">Anti Theft Service Status</string>
     <string name="delay">Delay until alarm is triggered</string>
-    <string name="arm">ARM</string>
-    <string name="disarm">DISARM</string>
-    <string name="on">Service is ON!</string>
-    <string name="off">Service is off.</string>
+    <string name="arm_alarm">ARM ALARM</string>
+    <string name="disarm_alarm">DISARM ALARM</string>
+    <string name="alarm_on">Alarm is ON!</string>
+    <string name="alarm_off">Alarm is off.</string>
 </resources>

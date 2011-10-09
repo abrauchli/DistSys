@@ -34,7 +34,7 @@ public class AntiTheftMain extends Activity {
 				delay = progress;
 				
 				/* Update the value in the TextView. */
-				TextView current_delay = (TextView) findViewById(R.id.current_delay);
+				TextView current_delay = (TextView) findViewById(R.id.txt_current_delay);
 				current_delay.setText("Current delay: " + delay + "sec");
 				
 				if (is_running) {
@@ -73,7 +73,7 @@ public class AntiTheftMain extends Activity {
 	/** Called when the alarm is armed or disarmed. */
 	public void onAlarmClick(View v) {
 		Button b = (Button) v;
-		TextView t = (TextView) findViewById(R.id.service_status);
+		TextView t = (TextView) findViewById(R.id.txt_service_status);
 		
 		if (!is_running) {
 			/* Case Service not running: Start service. */
@@ -93,18 +93,18 @@ public class AntiTheftMain extends Activity {
 			is_running = true;
 			
 			/* Update the text of the Arm-Disarm-Button. */
-			b.setText(R.string.disarm);
+			b.setText(R.string.disarm_alarm);
 			
 			/* Update the text of the Service-Status-TextView. */
-			t.setText(R.string.on);
+			t.setText(R.string.alarm_on);
 		} else {
 			/* Case Service running: Stop service. */
 			
 			/* Update the text of the Arm-Disarm-Button. */
-			b.setText(R.string.arm);
+			b.setText(R.string.arm_alarm);
 			
 			/* Update the text of the Service-Status-TextView. */
-			t.setText(R.string.off);
+			t.setText(R.string.alarm_off);
 			
 			stopService(new Intent(this, AntiTheftService.class));
 			is_running = false;

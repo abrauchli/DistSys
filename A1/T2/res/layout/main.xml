@@ -4,10 +4,10 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     >
-    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/txt_delay" android:textAppearance="?android:attr/textAppearanceLarge" android:text="@string/delay"></TextView>
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:textAppearance="?android:attr/textAppearanceLarge" android:text="@string/delay" android:id="@+id/txt_title_delay"></TextView>
     <SeekBar android:layout_height="wrap_content" android:layout_width="match_parent" android:id="@+id/seek_delay" android:max="100"></SeekBar>
-    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:textAppearance="?android:attr/textAppearanceMedium" android:id="@+id/current_delay" android:text="@string/start_delay"></TextView>
-    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="20pt" android:id="@+id/txt_alarm" android:textAppearance="?android:attr/textAppearanceLarge" android:text="@string/service_status"></TextView>
-    <Button android:layout_height="wrap_content" android:text="@string/arm" android:layout_width="match_parent" android:onClick="onAlarmClick" android:id="@+id/btn_on_off"></Button>
-    <TextView android:layout_width="wrap_content" android:textAppearance="?android:attr/textAppearanceMedium" android:layout_height="wrap_content" android:text="@string/off" android:id="@+id/service_status"></TextView>
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:textAppearance="?android:attr/textAppearanceMedium" android:text="@string/start_delay" android:id="@+id/txt_current_delay"></TextView>
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="20pt" android:textAppearance="?android:attr/textAppearanceLarge" android:text="@string/service_status" android:id="@+id/txt_title_service_status"></TextView>
+    <Button android:layout_height="wrap_content" android:layout_width="match_parent" android:onClick="onAlarmClick" android:id="@+id/btn_on_off" android:text="@string/arm_alarm"></Button>
+    <TextView android:layout_width="wrap_content" android:textAppearance="?android:attr/textAppearanceMedium" android:layout_height="wrap_content" android:id="@+id/txt_service_status" android:text="@string/alarm_off"></TextView>
 </LinearLayout>
