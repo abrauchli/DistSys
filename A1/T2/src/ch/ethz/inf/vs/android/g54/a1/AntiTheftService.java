@@ -123,6 +123,12 @@ public class AntiTheftService extends Service implements SensorEventListener {
 	 */
 	@Override
 	public void onDestroy() {
+		/* 
+		 * Unregister the accelerometer to inhibit calls to onAccuracyChanged and 
+		 * onSensorChanged after the service was turned off.
+		 */
+		sensorManager.unregisterListener(this, accelerometer);
+		
 		/* Delete all issued notifications. */
 		notificationManager.cancel(0);
 		notificationManager.cancel(1);
