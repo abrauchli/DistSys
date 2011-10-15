@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="hello">Hello World!</string>
     <string name="app_name">VS_G54_A2_1</string>
+    <string name="btn_html_raw">Raw HTML request</string>
+    <string name="btn_html_apache">HTML request using Apache</string>
+    <string name="btn_json_raw">Raw JSON answer</string>
+    <string name="btn_json_parsed">Parsed JSON answer</string>
 </resources>
