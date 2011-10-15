@@ -5,4 +5,6 @@
     <string name="btn_html_apache">HTML request using Apache</string>
     <string name="btn_json_raw">Raw JSON answer</string>
     <string name="btn_json_parsed">Parsed JSON answer</string>
+    <string name="txt_response_title">Response</string>
+    <string name="txt_empty"></string>
 </resources>

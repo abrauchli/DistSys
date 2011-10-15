@@ -9,7 +9,7 @@
         <activity android:label="@string/app_name" android:name="ch.ethz.inf.vs.android.g54.a2.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"></action>
-                <action android:name="android.intent.category.LAUNCHER"></action>
+                <category android:name="android.intent.category.LAUNCHER"></category>
             </intent-filter>
         </activity>
 
