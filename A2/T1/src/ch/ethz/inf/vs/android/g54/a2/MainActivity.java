@@ -4,10 +4,9 @@ import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import org.apache.http.*;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -34,12 +33,22 @@ public class MainActivity extends Activity {
 			outToServer.writeBytes(message);
 			outToServer.flush();
 			
-			String response = inFromServer.readLine();
+			StringBuilder sb = new StringBuilder();
+			
+			String line = inFromServer.readLine();
+			
+			//while (line != null) {
+				sb.append(line + "\n");
+				//line = inFromServer.readLine();
+			//}
+			outToServer.close();
+			inFromServer.close();
+			
 			TextView t;
 			t = (TextView) findViewById(R.id.txt_type_of_request);
 			t.setText(R.string.btn_html_raw);
 			t = (TextView) findViewById(R.id.txt_response);
-			t.setText(response.toString());
+			t.setText(sb.toString());
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -50,6 +59,8 @@ public class MainActivity extends Activity {
 	}
 	
 	public void onBtnHtmlApacheClick (View v) {
+		
+		
 		TextView t;
 		t = (TextView) findViewById(R.id.txt_type_of_request);
 		t.setText(R.string.btn_html_apache);
