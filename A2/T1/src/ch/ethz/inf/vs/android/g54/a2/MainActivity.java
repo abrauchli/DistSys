@@ -6,12 +6,11 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import org.apache.http.*;
-
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
+import org.apache.http.*;
 
 public class MainActivity extends Activity {
 
@@ -37,6 +36,7 @@ public class MainActivity extends Activity {
 			
 			String line = inFromServer.readLine();
 			
+			// TODO Takes too long, probably needs to be moved to a service.
 			//while (line != null) {
 				sb.append(line + "\n");
 				//line = inFromServer.readLine();
@@ -59,8 +59,6 @@ public class MainActivity extends Activity {
 	}
 	
 	public void onBtnHtmlApacheClick (View v) {
-		
-		
 		TextView t;
 		t = (TextView) findViewById(R.id.txt_type_of_request);
 		t.setText(R.string.btn_html_apache);
