@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="hello">Hello World!</string>
     <string name="app_name">VS_G54_A2_2</string>
+    <string name="txt_soap_raw">Raw SOAP Response</string>
+    <string name="txt_xml_raw">Raw XML Response</string>
+    <string name="txt_soap_parsed">Parsed SOAP Response</string>
+    <string name="txt_xml_parsed">Parsed XML Response</string>
+    <string name="txt_response_title">Response</string>
+    <string name="txt_empty_string"></string>
 </resources>

@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     >
-<TextView  
-    android:layout_width="fill_parent" 
-    android:layout_height="wrap_content" 
-    android:text="@string/hello"
-    />
+    <Button android:layout_height="wrap_content" android:layout_width="match_parent" android:layout_marginTop="10px" android:text="@string/txt_soap_raw" android:id="@+id/btn_soap_raw" android:onClick="onSoapRawClick"></Button>
+    <Button android:layout_height="wrap_content" android:layout_width="match_parent" android:text="@string/txt_xml_raw" android:id="@+id/btn_xml_raw" android:onClick="onXmlRawClick"></Button>
+    <Button android:layout_height="wrap_content" android:id="@+id/btn_soap_parsed" android:layout_width="match_parent" android:text="@string/txt_soap_parsed" android:onClick="onSoapParsedClick"></Button>
+    <Button android:layout_height="wrap_content" android:id="@+id/btn_xml_parsed" android:layout_width="match_parent" android:text="@string/txt_xml_parsed" android:onClick="onXmlParsedClick"></Button>
+    <TextView android:textAppearance="?android:attr/textAppearanceLarge" android:layout_height="wrap_content" android:layout_width="wrap_content" android:layout_marginTop="30px" android:id="@+id/txt_response_title" android:text="@string/txt_response_title"></TextView>
+    <TextView android:textAppearance="?android:attr/textAppearanceMedium" android:layout_height="wrap_content" android:layout_width="wrap_content" android:id="@+id/txt_type_of_request" android:layout_marginTop="20px" android:text="@string/txt_empty_string"></TextView>
+    <TextView android:textAppearance="?android:attr/textAppearanceMedium" android:layout_height="wrap_content" android:layout_width="wrap_content" android:id="@+id/txt_response" android:layout_marginTop="20px" android:text="@string/txt_empty_string"></TextView>
 </LinearLayout>
