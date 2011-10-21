@@ -1,5 +1,13 @@
 package ch.ethz.inf.vs.android.g54.a2;
 
+import java.io.IOException;
+
+import org.ksoap2.SoapEnvelope;
+import org.ksoap2.serialization.SoapObject;
+import org.ksoap2.serialization.SoapSerializationEnvelope;
+import org.ksoap2.transport.HttpTransportSE;
+import org.xmlpull.v1.XmlPullParserException;
+
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
@@ -14,6 +22,21 @@ public class MainActivity extends Activity {
 	}
 	
 	public void onSoapRawClick (View v) {
+		SoapObject request = new SoapObject("http://webservices.vslecture.vs.inf.ethz.ch/", "getDiscoveredSpots");
+		
+		SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(SoapEnvelope.VER11);
+		envelope.setOutputSoapObject(request);
+		
+		HttpTransportSE httpTransport = new HttpTransportSE("http://vswot.inf.ethz.ch:8080/SunSPOTWebServices/SunSPOTWebservice?wsdl");
+		httpTransport.debug = true;
+		
+		try {
+			httpTransport.call("http://webservices.vslecture.vs.inf.ethz.ch/SunSPOTWebservice/getDiscoveredSpotsRequest", envelope);
+			SoapObject response = (SoapObject) envelope.getResponse();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
 		TextView t = (TextView) findViewById(R.id.txt_type_of_request);
 		t.setText(R.string.txt_soap_raw);
 		
