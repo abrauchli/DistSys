@@ -10,17 +10,14 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
-
-import org.apache.http.HeaderElement;
-import org.apache.http.ParseException;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpHead;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicHeader;
+import org.json.JSONObject;
 
 public class MainActivity extends Activity {
 
@@ -47,10 +44,10 @@ public class MainActivity extends Activity {
 			String line = inFromServer.readLine();
 			
 			// TODO Takes too long, probably needs to be moved to a service.
-			//while (line != null) {
-				//sb.append(line + "\n");
-				//line = inFromServer.readLine();
-			//}
+//			while (line != null) {
+//				sb.append(line + "\n");
+//				line = inFromServer.readLine();
+//			}
 			outToServer.close();
 			inFromServer.close();
 			
@@ -61,7 +58,7 @@ public class MainActivity extends Activity {
 			
 			// TODO
 			t.setText(line);
-			//t.setText(sb.toString());
+//			t.setText(sb.toString());
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -111,14 +108,31 @@ public class MainActivity extends Activity {
 		t.setText(responseBody);
 	}
 	
-	public void onBtnJsonParsedClick (View v) {
+	public void onBtnJsonParsedClick (View v) throws ClientProtocolException, IOException {
+		HttpClient httpclient = new DefaultHttpClient();
+		String responseBody = "";
+		try {
+			HttpGet httpget = new HttpGet("http://vswot.inf.ethz.ch:8081/sunspots/Spot1/sensors/temperature");
+			BasicHeader header = new BasicHeader("Accept", "application/json");
+			httpget.addHeader(header);
+			ResponseHandler<String> responseHandler = new BasicResponseHandler();
+			responseBody = httpclient.execute(httpget, responseHandler);
+		} finally {
+			httpclient.getConnectionManager().shutdown();
+		}
+		double temperature = 0;
+		try {
+			JSONObject jsonObject = new JSONObject(responseBody);
+			temperature = jsonObject.getDouble("value");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
 		TextView t;
 		t = (TextView) findViewById(R.id.txt_type_of_request);
 		t.setText(R.string.btn_json_parsed);
 		t = (TextView) findViewById(R.id.txt_response);
-
-		// TODO: Replace
-		t.setText(R.string.txt_empty);
+		t.setText("Temperature of Sensor 1: " + temperature + "° C");
 	}
 
 }
