@@ -23,20 +23,27 @@ public class MainActivity extends Activity {
 	}
 
 	public void onSoapRawClick(View v) {
+
+		// create the request to getSpot ..
 		SoapObject request = new SoapObject(
 				"http://webservices.vslecture.vs.inf.ethz.ch/",
-				"getDiscoveredSpots");
+				"getSpot");
+		// .. and set the parameter to retrieve Spot3
+		request.addProperty("id", "Spot3");
 
+		// embed the request in a soap envelope
 		SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(SoapEnvelope.VER11);
 		envelope.setOutputSoapObject(request);
 
 		try {
+			// execute the call on given namespace
 			httpTransport.call(
-				"http://webservices.vslecture.vs.inf.ethz.ch/SunSPOTWebservice/getDiscoveredSpotsRequest",
-				envelope);
+					"http://webservices.vslecture.vs.inf.ethz.ch/SunSPOTWebservice/getSpot",
+					envelope);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+
 
 		TextView t = (TextView) findViewById(R.id.txt_type_of_request);
 		t.setText(R.string.txt_soap_raw);
@@ -45,62 +52,34 @@ public class MainActivity extends Activity {
 		t.setText(httpTransport.responseDump);
 	}
 
-	public void onXmlRawClick(View v) {
-		SoapObject request = new SoapObject(
-				"http://webservices.vslecture.vs.inf.ethz.ch/",
-				"getDiscoveredSpots");
-
-		SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(SoapEnvelope.VER11);
-		envelope.setOutputSoapObject(request);
-
-		try {
-			httpTransport.call(
-					"http://webservices.vslecture.vs.inf.ethz.ch/SunSPOTWebservice/getDiscoveredSpotsRequest",
-					envelope);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		TextView t = (TextView) findViewById(R.id.txt_type_of_request);
-		t.setText(R.string.txt_xml_raw);
-
-		t = (TextView) findViewById(R.id.txt_response);
-		// TODO replace
-		t.setText(R.string.txt_empty_string);
-	}
-
 	public void onSoapParsedClick(View v) {
 		TextView t = (TextView) findViewById(R.id.txt_type_of_request);
 		t.setText(R.string.txt_soap_parsed);
 
-		t = (TextView) findViewById(R.id.txt_response);
-		// TODO replace
-		t.setText(R.string.txt_empty_string);
-	}
-
-	public void onXmlParsedClick(View v) {
+		// create the request to getSpot ..
 		SoapObject request = new SoapObject(
 				"http://webservices.vslecture.vs.inf.ethz.ch/",
 				"getSpot");
+		// .. and set the parameter to retrieve Spot3
 		request.addProperty("id", "Spot3");
 
+		// embed the request in a soap envelope
 		SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(SoapEnvelope.VER11);
 		envelope.setOutputSoapObject(request);
 
 		SoapObject response = null;
 		String temp = "";
 		try {
+			// execute the call on given namespace
 			httpTransport.call(
 					"http://webservices.vslecture.vs.inf.ethz.ch/SunSPOTWebservice/getSpot",
 					envelope);
 			response = (SoapObject) envelope.getResponse();
+			// get the temperature node
 			temp = response.getPropertyAsString("temperature");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
-		TextView t = (TextView) findViewById(R.id.txt_type_of_request);
-		t.setText(R.string.txt_xml_parsed);
 
 		t = (TextView) findViewById(R.id.txt_response);
 		t.setText(temp);
