@@ -8,5 +8,11 @@
     <Button android:layout_height="wrap_content" android:id="@+id/btn_soap_parsed" android:layout_width="match_parent" android:text="@string/txt_soap_parsed" android:onClick="onSoapParsedClick"></Button>
     <TextView android:textAppearance="?android:attr/textAppearanceLarge" android:layout_height="wrap_content" android:layout_width="wrap_content" android:layout_marginTop="30px" android:id="@+id/txt_response_title" android:text="@string/txt_response_title"></TextView>
     <TextView android:textAppearance="?android:attr/textAppearanceMedium" android:layout_height="wrap_content" android:layout_width="wrap_content" android:id="@+id/txt_type_of_request" android:layout_marginTop="20px" android:text="@string/txt_empty_string"></TextView>
-    <TextView android:textAppearance="?android:attr/textAppearanceMedium" android:layout_height="wrap_content" android:layout_width="wrap_content" android:id="@+id/txt_response" android:layout_marginTop="20px" android:text="@string/txt_empty_string"></TextView>
+    <ScrollView
+        android:id="@+id/scrl_response"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20px">
+        <TextView android:textAppearance="?android:attr/textAppearanceMedium" android:layout_height="wrap_content" android:layout_width="wrap_content" android:id="@+id/txt_response" android:text="@string/txt_empty_string"></TextView>
+    </ScrollView>
 </LinearLayout>
