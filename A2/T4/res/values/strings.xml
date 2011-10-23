@@ -4,4 +4,5 @@
     <string name="app_name">VS_G54_A2_4</string>
     <string name="txt_google_chart">Google Chart</string>
     <string name="txt_native">Native Android graphics library</string>
+    <string name="txt_not_implemented">Not implemented.</string>
 </resources>

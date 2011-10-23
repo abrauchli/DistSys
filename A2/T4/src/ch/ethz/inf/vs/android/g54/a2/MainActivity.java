@@ -36,7 +36,7 @@ public class MainActivity extends Activity {
     }
     
     public void onNativeLibraryClick (View v) {
-    	
+    	Toast.makeText(this, R.string.txt_not_implemented, Toast.LENGTH_SHORT).show();
     }
     
     public void onGoogleChartClick (View v) {
@@ -50,7 +50,6 @@ public class MainActivity extends Activity {
     			"function drawChart() {" +
     	        "var data = new google.visualization.DataTable();" +
     	        "data.addColumn('number', 'Temperature');\n";
-//    	        "data.addRows(" + temperatures.size() + ");";
     	for (int i = 0; i < temperatures.size(); i++) {
 			htmlFile = htmlFile + "data.addRow([" + temperatures.get(i) + "]);\n\n";
 		}
