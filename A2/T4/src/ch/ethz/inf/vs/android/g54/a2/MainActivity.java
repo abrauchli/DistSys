@@ -49,10 +49,10 @@ public class MainActivity extends Activity {
     			"google.setOnLoadCallback(drawChart);" +
     			"function drawChart() {" +
     	        "var data = new google.visualization.DataTable();" +
-    	        "data.addColumn('number', 'Temperature');\n" +
-    	        "data.addRows(" + temperatures.size() + ");";
+    	        "data.addColumn('number', 'Temperature');\n";
+//    	        "data.addRows(" + temperatures.size() + ");";
     	for (int i = 0; i < temperatures.size(); i++) {
-			htmlFile = htmlFile + "data.setValue(" + temperatures.get(i) + ");\n\n";
+			htmlFile = htmlFile + "data.addRow([" + temperatures.get(i) + "]);\n\n";
 		}
     	htmlFile = htmlFile + "var chart = new google.visualization.LineChart(document.getElementById('chart_div'));\n"
     			+ "chart.draw(data, {width: 400, height: 240, title: 'Temperatures from Spot 1'});\n"
