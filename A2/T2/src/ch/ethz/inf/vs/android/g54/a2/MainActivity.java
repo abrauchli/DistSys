@@ -88,13 +88,13 @@ public class MainActivity extends Activity {
 		envelope.setOutputSoapObject(request);
 
 		SoapObject response = null;
-		double temp = 0.0;
+		String temp = "";
 		try {
 			httpTransport.call(
 					"http://webservices.vslecture.vs.inf.ethz.ch/SunSPOTWebservice/getSpot",
 					envelope);
 			response = (SoapObject) envelope.getResponse();
-			/* temp = */ response.getProperty("temperature")/*.value*/; // What class is that?
+			temp = response.getPropertyAsString("temperature");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -103,7 +103,7 @@ public class MainActivity extends Activity {
 		t.setText(R.string.txt_xml_parsed);
 
 		t = (TextView) findViewById(R.id.txt_response);
-		t.setText(Double.toString(temp));
+		t.setText(temp);
 	}
 
 }
