@@ -26,9 +26,10 @@ public class MainActivity extends Activity {
 		HttpTransportSE httpTransport = new HttpTransportSE("http://vswot.inf.ethz.ch:8080/SunSPOTWebServices/SunSPOTWebservice?wsdl");
 		httpTransport.debug = true;
 		
+		SoapObject response = null;
 		try {
 			httpTransport.call("http://webservices.vslecture.vs.inf.ethz.ch/SunSPOTWebservice/getDiscoveredSpotsRequest", envelope);
-			SoapObject response = (SoapObject) envelope.getResponse();
+			response = (SoapObject) envelope.getResponse();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -37,8 +38,7 @@ public class MainActivity extends Activity {
 		t.setText(R.string.txt_soap_raw);
 		
 		t = (TextView) findViewById(R.id.txt_response);
-		//TODO replace
-		t.setText(R.string.txt_empty_string);
+		t.setText(httpTransport.responseDump);
 	}
 	
 	public void onXmlRawClick (View v) {
