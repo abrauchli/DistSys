@@ -1,7 +1,6 @@
 package ch.ethz.inf.vs.android.g54.a2;
 
 import org.ksoap2.SoapEnvelope;
-import org.ksoap2.serialization.PropertyInfo;
 import org.ksoap2.serialization.SoapObject;
 import org.ksoap2.serialization.SoapSerializationEnvelope;
 import org.ksoap2.transport.HttpTransportSE;
@@ -12,16 +11,22 @@ import android.widget.TextView;
 
 public class MainActivity extends Activity {
 
+	// Transport object used throughout the class
 	HttpTransportSE httpTransport = new HttpTransportSE(
 			"http://vswot.inf.ethz.ch:8080/SunSPOTWebServices/SunSPOTWebservice?wsdl");
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		// enable debug mode to intercept responseDump
 		httpTransport.debug = true;
 		setContentView(R.layout.main);
 	}
 
+	/**
+	 * Get the temperature from the sensor and display the raw XML response
+	 * @param v The view (Button) that was clicked
+	 */
 	public void onSoapRawClick(View v) {
 
 		// create the request to getSpot ..
@@ -52,6 +57,10 @@ public class MainActivity extends Activity {
 		t.setText(httpTransport.responseDump);
 	}
 
+	/**
+	 * Get the temperature from the sensor
+	 * @param v The view (Button) that was clicked
+	 */
 	public void onSoapParsedClick(View v) {
 		TextView t = (TextView) findViewById(R.id.txt_type_of_request);
 		t.setText(R.string.txt_soap_parsed);

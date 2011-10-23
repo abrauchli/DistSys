@@ -28,20 +28,24 @@ public class MainActivity extends Activity {
 		try {
 			Socket s = new Socket("vswot.inf.ethz.ch", 8081);			
 			
+			// Create the in and out streams from the socket
 			DataOutputStream outToServer = new DataOutputStream(s.getOutputStream());
 			BufferedReader inFromServer = new BufferedReader(new InputStreamReader(s.getInputStream()));
 			
-			String message = "GET /sunspots/Spot1/sensors/temperature HTTP/1.1\r\nHost: vswot.inf.ethz.ch\r\n\r\n";
+			// HTTP Query
+			String message = "GET /sunspots/Spot1/sensors/temperature HTTP/1.1\r\n"
+					+ "Host: vswot.inf.ethz.ch\r\n"
+					+ "\r\n";
 			outToServer.writeBytes(message);
 			outToServer.flush();
 			
+			// Use a stringbuilder as it's much quicker than freeing/reallocating long strings
 			StringBuilder sb = new StringBuilder();
-			
 			String line = inFromServer.readLine();
-			
-			//Comment regarding performance
+
 			while (line != null) {
 				sb.append(line + "\n");
+				// Not sure why, but reading is crazy slow. Esp. compared to the apache client
 				line = inFromServer.readLine();
 			}
 			outToServer.close();
@@ -53,7 +57,9 @@ public class MainActivity extends Activity {
 			t = (TextView) findViewById(R.id.txt_response);
 			
 			t.setText(sb.toString());
+			
 		} catch (Exception e) {
+			// something with the socket went foobar
 			e.printStackTrace();
 		}
 	}
@@ -62,15 +68,18 @@ public class MainActivity extends Activity {
 		HttpClient httpclient = new DefaultHttpClient();
 		String responseBody = "";
 		try {
+			// request temperature from sensor
 			HttpGet httpGet = new HttpGet("http://vswot.inf.ethz.ch:8081/sunspots/Spot1/sensors/temperature");
 			ResponseHandler<String> responseHandler = new BasicResponseHandler();
 			responseBody = httpclient.execute(httpGet, responseHandler);
 		} catch (Exception e) {
+			// something with the request went wrong
 			e.printStackTrace();
 		} finally {
 			httpclient.getConnectionManager().shutdown();
 		}
-		
+
+		// Set the values in the GUI
 		TextView t;
 		t = (TextView) findViewById(R.id.txt_type_of_request);
 		t.setText(R.string.btn_html_apache);
@@ -82,6 +91,7 @@ public class MainActivity extends Activity {
 		HttpClient httpclient = new DefaultHttpClient();
 		String responseBody = "";
 		try {
+			// request temperature from sensor
 			HttpGet httpget = new HttpGet("http://vswot.inf.ethz.ch:8081/sunspots/Spot1/sensors/temperature");
 			BasicHeader header = new BasicHeader("Accept", "application/json");
 			httpget.addHeader(header);
@@ -106,6 +116,7 @@ public class MainActivity extends Activity {
 		double temperature = 0;
 		
 		try {
+			// request temperature from sensor
 			HttpGet httpget = new HttpGet("http://vswot.inf.ethz.ch:8081/sunspots/Spot1/sensors/temperature");
 			BasicHeader header = new BasicHeader("Accept", "application/json");
 			httpget.addHeader(header);
@@ -121,6 +132,7 @@ public class MainActivity extends Activity {
 			JSONObject jsonObject = new JSONObject(responseBody);
 			temperature = jsonObject.getDouble("value");
 		} catch (Exception e) {
+			// Result is probably not JSON or value is not double
 			e.printStackTrace();
 		}
 		
