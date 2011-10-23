@@ -10,5 +10,11 @@
     <Button android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/btn_json_parsed" android:id="@+id/btn_json_parsed" android:onClick="onBtnJsonParsedClick"></Button>
     <TextView android:textAppearance="?android:attr/textAppearanceLarge" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="30px" android:id="@+id/txt_response_title" android:text="@string/txt_response_title"></TextView>
     <TextView android:textAppearance="?android:attr/textAppearanceMedium" android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/txt_type_of_request" android:layout_marginTop="20px" android:text="@string/txt_empty"></TextView>
-    <TextView android:textAppearance="?android:attr/textAppearanceMedium" android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/txt_response" android:text="@string/txt_empty" android:layout_marginTop="20px"></TextView>
+	<ScrollView
+        android:id="@+id/scrl_response"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20px">
+        <TextView android:textAppearance="?android:attr/textAppearanceMedium" android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/txt_response" android:text="@string/txt_empty" android:layout_marginTop="20px"></TextView>
+    </ScrollView>
 </LinearLayout>
