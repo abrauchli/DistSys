@@ -27,6 +27,7 @@ public class MainActivity extends Activity {
         
         temperatures = new ArrayList<Double>();
         
+        /* Get temperature values during the next ten seconds */
         long timestamp = System.currentTimeMillis();
         while (System.currentTimeMillis() - timestamp <= 10000) {
 			if ((System.currentTimeMillis() - timestamp) % 1000 == 0) {
@@ -40,6 +41,7 @@ public class MainActivity extends Activity {
     }
     
     public void onGoogleChartClick (View v) {
+    	/* Create HTML file containing the code for the chart. */
     	String htmlFile = 
     			"<html>\n" +
     			"<head>\n" +
@@ -63,13 +65,16 @@ public class MainActivity extends Activity {
     			+ "</body>\n"
     			+ "</html>";
     	
+    	/* Switch to the view displaying the chart. */
     	setContentView(R.layout.google_chart);
     	
+    	/* Display the chart. */
     	WebView mWebView = (WebView) findViewById(R.id.webView);
         mWebView.getSettings().setJavaScriptEnabled(true);
         mWebView.loadData(htmlFile, "text/html", "utf-8");
     }
     
+    /** Returns a temperature value. */
     public double getTemperature() {
     	HttpClient httpclient = new DefaultHttpClient();
 		String responseBody = "";
