@@ -49,7 +49,8 @@ public class MainActivity extends Activity {
     			"google.setOnLoadCallback(drawChart);" +
     			"function drawChart() {" +
     	        "var data = new google.visualization.DataTable();" +
-    	        "data.addColumn('number', 'Temperature');";
+    	        "data.addColumn('number', 'Temperature');\n" +
+    	        "data.addRows(" + temperatures.size() + ");";
     	for (int i = 0; i < temperatures.size(); i++) {
 			htmlFile = htmlFile + "data.setValue(" + temperatures.get(i) + ");\n\n";
 		}
