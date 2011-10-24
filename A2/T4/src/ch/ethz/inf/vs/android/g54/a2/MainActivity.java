@@ -13,6 +13,7 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
 import android.webkit.WebView;
+import android.webkit.WebSettings.PluginState;
 import android.widget.Toast;
 
 public class MainActivity extends Activity {
@@ -40,34 +41,30 @@ public class MainActivity extends Activity {
     }
     
     public void onGoogleChartClick (View v) {
-    	String htmlFile = 
-    			"<html>\n" +
-    			"<head>\n" +
-    			"<script type='text/javascript' src='https://www.google.com/jsapi'></script>\n" +
-    			"<script type='text/javascript'>\n" +
-    			"google.load('visualization', '1', {packages:['corechart']});\n" +
-    			"google.setOnLoadCallback(drawChart);" +
-    			"function drawChart() {" +
-    	        "var data = new google.visualization.DataTable();" +
-    	        "data.addColumn('number', 'Temperature');\n";
-    	for (int i = 0; i < temperatures.size(); i++) {
-			htmlFile = htmlFile + "data.addRow([" + temperatures.get(i) + "]);\n\n";
+    	StringBuilder vals = new StringBuilder();
+    	if (temperatures.size() > 0) {
+			vals.append(temperatures.get(0));
+    	}
+    	for (int i = 1; i < temperatures.size(); i++) {
+    		vals.append(',');
+			vals.append(temperatures.get(i));
 		}
-    	htmlFile = htmlFile + "var chart = new google.visualization.LineChart(document.getElementById('chart_div'));\n"
-    			+ "chart.draw(data, {width: 400, height: 240, title: 'Temperatures from Spot 1'});\n"
-    			+ "}\n"
-    			+ "</script>\n"
-    			+ "</head>\n\n"
-    			+ "<body>\n"
-    			+ "<div id='chart_div'></div>\n"
-    			+ "</body>\n"
-    			+ "</html>";
     	
     	setContentView(R.layout.google_chart);
     	
     	WebView mWebView = (WebView) findViewById(R.id.webView);
-        mWebView.getSettings().setJavaScriptEnabled(true);
-        mWebView.loadData(htmlFile, "text/html", "utf-8");
+    	mWebView.getSettings().setPluginState(PluginState.ON_DEMAND);
+    	mWebView.getSettings().setJavaScriptEnabled(true);	
+        mWebView.loadUrl("http://chart.apis.google.com/chart"
+        	   + "?chxl=0:|°C"
+        	   + "&chs=400x240"
+        	   + "&cht=lc"
+        	   + "&chco=3072F3"
+        	   + "&chd=t:" + vals.toString()
+        	   + "&chdlp=b"
+        	   + "&chls=2,4,1"
+        	   + "&chma=5,5,5,25"
+        	   + "&chtt=Temparture");
     }
     
     public double getTemperature() {
