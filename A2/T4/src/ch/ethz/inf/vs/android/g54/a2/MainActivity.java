@@ -59,7 +59,7 @@ public class MainActivity extends Activity {
     	mWebView.getSettings().setPluginState(PluginState.ON_DEMAND);
     	mWebView.getSettings().setJavaScriptEnabled(true);	
         mWebView.loadUrl("http://chart.apis.google.com/chart"
-        	   + "?chxl=0:|°C"
+        	   + "?chxt=y"
         	   + "&chs=400x240"
         	   + "&cht=lc"
         	   + "&chco=3072F3"
