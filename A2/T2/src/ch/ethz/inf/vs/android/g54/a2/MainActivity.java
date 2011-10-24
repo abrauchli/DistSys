@@ -91,7 +91,7 @@ public class MainActivity extends Activity {
 		}
 
 		t = (TextView) findViewById(R.id.txt_response);
-		t.setText(temp);
+		t.setText("Temperature of Sensor 3: " + temp + "° C");
 	}
 
 }
