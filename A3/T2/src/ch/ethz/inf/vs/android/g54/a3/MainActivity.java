@@ -15,12 +15,72 @@ import org.json.JSONObject;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 
 public class MainActivity extends Activity {
 
 	final String SERVER = "vswot.inf.ethz.ch";
+	final int MESSAGE_BUFFER_SIZE = 2048;
 
 	DatagramSocket sockCmd = null;
+	Thread chatThread = null;
+	Handler handler = null;
+
+	Map<Integer, Integer> clocks = new HashMap<Integer, Integer>();
+	Map<String, String> clients = new HashMap<String, String>();
+
+	class ChatThread implements Runnable {
+		
+		DatagramSocket sock = null;
+		Handler handler;
+		
+		public ChatThread(Handler handler) {
+			this.handler = handler;
+		}
+		
+		@Override
+		public void run() {
+			try {
+				// TODO: CHECK: if we only receive on this port but don't send
+				// we don't need the hostname resolved, nor the sock.connect
+				InetAddress adrServer = InetAddress.getByName(SERVER);
+				sock = new DatagramSocket(4001);
+				sock.connect(adrServer, 4001); // set default socket for send/recv
+
+				while (true) {
+					byte[] msg = new byte[MESSAGE_BUFFER_SIZE];
+					DatagramPacket pkt = new DatagramPacket(msg, msg.length);
+					sockCmd.receive(pkt); // blocking read
+					Message m = handler.obtainMessage();
+					Bundle b = new Bundle();
+					b.putString("msg", String.valueOf(msg));
+					m.setData(b);
+					m.sendToTarget();
+				}
+
+			} catch (UnknownHostException e) {
+				e.printStackTrace();
+			} catch (SocketException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	class MessageHandler extends Handler {
+		@Override
+		public void handleMessage(Message msg) {
+			super.handleMessage(msg);
+			try {
+				JSONObject o = new JSONObject(msg.getData().getString("msg"));
+				// TODO: what to do on message ?
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+		}
+	}
 
 	private String cmdReg(String user) {
 		JSONObject o = new JSONObject();
@@ -31,8 +91,6 @@ public class MainActivity extends Activity {
 			e.printStackTrace();
 		}
 		return o.toString();
-		// answer:
-		// {"index":3,"time_vector":{"3":0,"2":70,"1":71,"0":74},"success":"reg_ok"}
 	}
 
 	private String cmdDereg() {
@@ -43,10 +101,9 @@ public class MainActivity extends Activity {
 			e.printStackTrace();
 		}
 		return o.toString();
-		// answer {"success":"dreg_ok"}
 	}
 
-	private String cmdMsg(String text, Map<String, Integer> clocks) {
+	private String cmdMsg(String text, Map<Integer, Integer> clocks) {
 		JSONObject o = new JSONObject();
 		JSONObject t = new JSONObject(clocks);
 		try {
@@ -60,7 +117,6 @@ public class MainActivity extends Activity {
 	}
 
 	private String cmdGetClients() {
-
 		JSONObject o = new JSONObject();
 		try {
 			o.put("cmd", "get_clients");
@@ -68,11 +124,35 @@ public class MainActivity extends Activity {
 			e.printStackTrace();
 		}
 		return o.toString();
-		// answer:
-		// {"index":3,"time_vector":{"3":0,"2":70,"1":71,"0":74},"success":"reg_ok"}
+
+	}
+	
+	private JSONObject execCmd(String cmd) {
+
+		try {
+			byte[] req = cmd.getBytes();
+			DatagramPacket pkt = new DatagramPacket(req, req.length);
+			sockCmd.send(pkt);
+
+			byte[] ans = new byte[MESSAGE_BUFFER_SIZE];
+			pkt = new DatagramPacket(ans, ans.length);
+			sockCmd.receive(pkt); // blocking read
+			return new JSONObject(String.valueOf(ans));
+
+		} catch (JSONException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	public void sendMsg(String text) {
+		execCmd(cmdMsg(text, clocks));
 	}
 
 	/** Called when the activity is first created. */
+	@SuppressWarnings("unchecked")
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -84,32 +164,54 @@ public class MainActivity extends Activity {
 			sockCmd.setSoTimeout(10 * 1000); // read timeout of 10s
 			sockCmd.connect(adrServer, 4000); // set default socket for send/recv
 
-			byte[] req = cmdReg("AnonUser42").getBytes();
-			DatagramPacket pkt = new DatagramPacket(req, req.length);
-			sockCmd.send(pkt);
-
-			byte[] ans = new byte[128];
-			pkt = new DatagramPacket(ans, ans.length);
-			sockCmd.receive(pkt); // blocking read
-			JSONObject o = new JSONObject(String.valueOf(ans));
+			// register
+			JSONObject o = execCmd(cmdReg("AnonUser42")); // TODO: change user name
+			// answer:
+			// {"index":3,"time_vector":{"3":0,"2":70,"1":71,"0":74},"success":"reg_ok"}
 			assert (o.get("success").equals("reg_ok"));
+
+			// get clocks (from register answer)
 			String index = (String) o.get("index");
-			HashMap<String, Integer> clocks = new HashMap<String, Integer>();
 			JSONObject v = o.getJSONObject("time_vector");
-			@SuppressWarnings("unchecked")
-			Iterator<String> i = v.keys();
+			Iterator<Integer> i = v.keys();
 			while (i.hasNext()) {
-				String c = i.next();
-				clocks.put(c, (Integer) o.get(c));
+				Integer c = i.next();
+				clocks.put(c, o.getInt(c.toString()));
 			}
+
+			// get client list
+			o = execCmd(cmdGetClients()).getJSONObject("clients");
+			// answer: {"clients":
+			//   {"/129.132.75.130":"QuestionBot","/129.132.252.221":"AnswerBot","/77.58.228.17":"willi"}
+			// }
+			Iterator<String> s = o.keys();
+			while (s.hasNext()) {
+				String c = s.next();
+				clients.put(c, (String) o.getString(c));
+			}
+
+			chatThread = new Thread(new ChatThread(handler));
+			chatThread.start();
+			
 		} catch (JSONException e) {
 			e.printStackTrace();
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		} catch (SocketException e) {
 			e.printStackTrace();
-		} catch (IOException e) {
+		}
+	}
+
+	/** Called when the activity is unloaded. */
+	@Override
+	public void onDestroy() {
+		chatThread.stop();
+		JSONObject o = execCmd(cmdDereg()); // answer {"success":"dreg_ok"}
+		try {
+			assert (o.getString("success").equals("dreg_ok"));
+		} catch (JSONException e) {
 			e.printStackTrace();
 		}
+		super.onDestroy();
 	}
 }
