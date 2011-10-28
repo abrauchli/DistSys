@@ -6,6 +6,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -93,9 +94,13 @@ public class MainActivity extends Activity {
 			JSONObject o = new JSONObject(String.valueOf(ans));
 			assert (o.get("success").equals("reg_ok"));
 			String index = (String) o.get("index");
-			Iterator<String> i = o.getJSONObject("time_vector").keys();
+			HashMap<String, Integer> clocks = new HashMap<String, Integer>();
+			JSONObject v = o.getJSONObject("time_vector");
+			@SuppressWarnings("unchecked")
+			Iterator<String> i = v.keys();
 			while (i.hasNext()) {
-				// TODO
+				String c = i.next();
+				clocks.put(c, (Integer) o.get(c));
 			}
 		} catch (JSONException e) {
 			e.printStackTrace();
