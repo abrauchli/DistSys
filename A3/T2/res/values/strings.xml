@@ -2,4 +2,8 @@
 <resources>
     <string name="hello">Hello World, MainActivity!</string>
     <string name="app_name">VS_G54_A3_2</string>
+    <string name="enter_username">Please enter a username...</string>
+    <string name="txt_btn_register">Register</string>
+    <string name="txt_lamport_timestamps">Lamport Timestamps</string>
+    <string name="txt_chat_application">Chat Application</string>
 </resources>
