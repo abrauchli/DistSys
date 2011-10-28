@@ -14,15 +14,21 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Activity;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.view.View;
+import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.Toast;
 
 public class MainActivity extends Activity {
 
 	final String SERVER = "vswot.inf.ethz.ch";
 	final int MESSAGE_BUFFER_SIZE = 2048;
 
+	String user = null;
 	DatagramSocket sockCmd = null;
 	Thread chatThread = null;
 	Handler handler = null;
@@ -151,21 +157,11 @@ public class MainActivity extends Activity {
 		execCmd(cmdMsg(text, clocks));
 	}
 
-	/** Called when the activity is first created. */
 	@SuppressWarnings("unchecked")
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.main);
-
+	public void connect() {
 		try {
-			InetAddress adrServer = InetAddress.getByName(SERVER);
-			sockCmd = new DatagramSocket(4000);
-			sockCmd.setSoTimeout(10 * 1000); // read timeout of 10s
-			sockCmd.connect(adrServer, 4000); // set default socket for send/recv
-
 			// register
-			JSONObject o = execCmd(cmdReg("AnonUser42")); // TODO: change user name
+			JSONObject o = execCmd(cmdReg(user));
 			// answer:
 			// {"index":3,"time_vector":{"3":0,"2":70,"1":71,"0":74},"success":"reg_ok"}
 			assert (o.get("success").equals("reg_ok"));
@@ -182,7 +178,7 @@ public class MainActivity extends Activity {
 			// get client list
 			o = execCmd(cmdGetClients()).getJSONObject("clients");
 			// answer: {"clients":
-			//   {"/129.132.75.130":"QuestionBot","/129.132.252.221":"AnswerBot","/77.58.228.17":"willi"}
+			// {"/129.132.75.130":"QuestionBot","/129.132.252.221":"AnswerBot","/77.58.228.17":"willi"}
 			// }
 			Iterator<String> s = o.keys();
 			while (s.hasNext()) {
@@ -192,9 +188,45 @@ public class MainActivity extends Activity {
 
 			chatThread = new Thread(new ChatThread(handler));
 			chatThread.start();
-			
 		} catch (JSONException e) {
 			e.printStackTrace();
+		}
+	}
+	
+	public void disconnect() {
+		chatThread.stop();
+		JSONObject o = execCmd(cmdDereg()); // answer {"success":"dreg_ok"}
+		try {
+			assert (o.getString("success").equals("dreg_ok"));
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void onConnectClick(View v) {
+		EditText txt = (EditText) findViewById(R.id.txt_username);
+		String s = txt.getEditableText().toString();
+		if (s.length() > 3) {
+			user = s;
+			connect();
+		} else {
+			Toast t = Toast.makeText(this, "Invalid user name", Toast.LENGTH_SHORT);
+			t.show();
+		}
+	}
+
+	/** Called when the activity is first created. */
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.main);
+
+		try {
+			InetAddress adrServer = InetAddress.getByName(SERVER);
+			sockCmd = new DatagramSocket(4000);
+			sockCmd.setSoTimeout(10 * 1000); // read timeout of 10s
+			sockCmd.connect(adrServer, 4000); // set default socket for send/recv
+
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		} catch (SocketException e) {
@@ -205,13 +237,7 @@ public class MainActivity extends Activity {
 	/** Called when the activity is unloaded. */
 	@Override
 	public void onDestroy() {
-		chatThread.stop();
-		JSONObject o = execCmd(cmdDereg()); // answer {"success":"dreg_ok"}
-		try {
-			assert (o.getString("success").equals("dreg_ok"));
-		} catch (JSONException e) {
-			e.printStackTrace();
-		}
+		disconnect();
 		super.onDestroy();
 	}
 }

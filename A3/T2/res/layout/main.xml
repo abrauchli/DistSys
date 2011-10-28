@@ -6,8 +6,8 @@
     >
     <TextView android:textAppearance="?android:attr/textAppearanceLarge" android:layout_height="wrap_content" android:layout_width="wrap_content" android:id="@+id/tVL_title" android:text="@string/txt_chat_application"></TextView>
     <TextView android:textAppearance="?android:attr/textAppearanceSmall" android:layout_height="wrap_content" android:layout_width="wrap_content" android:id="@+id/tVS_type_of_timestamp" android:text="@string/txt_lamport_timestamps"></TextView>
-    <EditText android:layout_height="wrap_content" android:layout_width="match_parent" android:layout_marginTop="10px" android:text="@string/enter_username" android:id="@+id/eT_username">
+    <EditText android:layout_height="wrap_content" android:layout_width="match_parent" android:layout_marginTop="10px" android:text="@string/enter_username" android:id="@+id/txt_username">
         <requestFocus></requestFocus>
     </EditText>
-    <Button android:layout_height="wrap_content" android:layout_width="match_parent" android:id="@+id/btn_register" android:text="@string/txt_btn_register"></Button>
+    <Button android:layout_height="wrap_content" android:layout_width="match_parent" android:id="@+id/btn_register" android:text="@string/txt_btn_register" android:onClick="onConnectClick"></Button>
 </LinearLayout>
