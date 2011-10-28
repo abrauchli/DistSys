@@ -9,5 +9,5 @@
     <string name="txt_empty_string"></string>
     <string name="txt_btn_send">Send</string>
     <string name="txt_btn_deregister">Deregister</string>
-    <string name="txt_eT_message_line">Enter your message here...</string>
+    <string name="txt_et_input_line">Enter your message here...</string>
 </resources>

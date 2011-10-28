@@ -4,8 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     >
-    <TextView android:textAppearance="?android:attr/textAppearanceLarge" android:layout_height="wrap_content" android:layout_width="wrap_content" android:id="@+id/tVL_title" android:text="@string/txt_chat_application"></TextView>
-    <TextView android:textAppearance="?android:attr/textAppearanceSmall" android:layout_height="wrap_content" android:layout_width="wrap_content" android:id="@+id/tVS_type_of_timestamp" android:text="@string/txt_lamport_timestamps"></TextView>
+    <TextView android:textAppearance="?android:attr/textAppearanceLarge" android:layout_height="wrap_content" android:layout_width="wrap_content" android:text="@string/txt_chat_application" android:id="@+id/textview_title"></TextView>
+    <TextView android:textAppearance="?android:attr/textAppearanceSmall" android:layout_height="wrap_content" android:layout_width="wrap_content" android:text="@string/txt_lamport_timestamps" android:id="@+id/textview_timestamp_type"></TextView>
     <EditText android:layout_height="wrap_content" android:layout_width="match_parent" android:layout_marginTop="10px" android:text="@string/enter_username" android:id="@+id/txt_username">
         <requestFocus></requestFocus>
     </EditText>
