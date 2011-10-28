@@ -17,10 +17,10 @@ public final class R {
         public static final int btn_deregister=0x7f050000;
         public static final int btn_register=0x7f050007;
         public static final int btn_send=0x7f050001;
-        public static final int edit_text_input_line=0x7f050002;
         public static final int list_view_messages=0x7f050003;
         public static final int textview_timestamp_type=0x7f050005;
         public static final int textview_title=0x7f050004;
+        public static final int txt_msg=0x7f050002;
         public static final int txt_username=0x7f050006;
     }
     public static final class layout {

@@ -18,6 +18,14 @@ import android.os.Handler;
 import android.os.Message;
 
 public class ChatManager {
+	// Singleton
+	private static ChatManager instance;
+	public static ChatManager getInstance() {
+		if (instance == null) {
+			instance = new ChatManager();
+		}
+		return instance;
+	}
 
 	final String SERVER = "vswot.inf.ethz.ch";
 	final int MESSAGE_BUFFER_SIZE = 2048;
@@ -30,7 +38,7 @@ public class ChatManager {
 	Map<Integer, Integer> clocks = new HashMap<Integer, Integer>();
 	Map<String, String> clients = new HashMap<String, String>();
 
-	public ChatManager() {
+	private ChatManager() {
 		try {
 			InetAddress adrServer = InetAddress.getByName(SERVER);
 			sockCmd = new DatagramSocket(4000);

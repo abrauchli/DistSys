@@ -1,6 +1,7 @@
 package ch.ethz.inf.vs.android.g54.a3;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
@@ -16,6 +17,8 @@ public class MainActivity extends Activity {
 		if (s.length() > 3) {
 			chat.setUser(s);
 			chat.connect();
+			Intent i = new Intent(this, ChatActivity.class);
+			startActivity(i);
 		} else {
 			Toast t = Toast.makeText(this, "Invalid user name", Toast.LENGTH_SHORT);
 			t.show();
@@ -28,7 +31,7 @@ public class MainActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
 
-		chat = new ChatManager();
+		chat = ChatManager.getInstance();
 	}
 
 	/** Called when the activity is unloaded. */
