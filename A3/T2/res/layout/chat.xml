@@ -4,9 +4,9 @@
   android:orientation="vertical"
   android:layout_width="match_parent"
   android:layout_height="match_parent">
-    <Button android:id="@+id/btn_deregister" android:layout_height="wrap_content" android:text="Deregister" android:layout_alignParentBottom="true" android:layout_width="wrap_content"></Button>
-    <Button android:layout_height="wrap_content" android:id="@+id/btn_send" android:text="Send" android:layout_alignParentBottom="true" android:layout_toRightOf="@id/btn_deregister" android:layout_width="match_parent"></Button>
-    <EditText android:layout_height="wrap_content" android:id="@+id/eT_message_line" android:layout_above="@id/btn_deregister" android:layout_alignParentLeft="true" android:layout_width="match_parent">
+    <Button android:id="@+id/btn_deregister" android:layout_height="wrap_content" android:layout_alignParentBottom="true" android:layout_width="wrap_content" android:text="@string/txt_btn_deregister"></Button>
+    <Button android:layout_height="wrap_content" android:id="@+id/btn_send" android:layout_alignParentBottom="true" android:layout_toRightOf="@id/btn_deregister" android:layout_width="match_parent" android:text="@string/txt_btn_send"></Button>
+    <EditText android:layout_height="wrap_content" android:id="@+id/eT_message_line" android:layout_above="@id/btn_deregister" android:layout_alignParentLeft="true" android:layout_width="match_parent" android:text="@string/txt_eT_message_line">
         <requestFocus></requestFocus>
     </EditText>
     <ListView android:layout_height="wrap_content" android:layout_width="match_parent" android:id="@+id/lV_messages" android:layout_above="@id/eT_message_line"></ListView>
