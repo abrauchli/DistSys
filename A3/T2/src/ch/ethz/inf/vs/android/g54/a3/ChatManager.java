@@ -150,7 +150,6 @@ public class ChatManager {
 	}
 	
 	private JSONObject execCmd(String cmd) {
-
 		try {
 			byte[] req = cmd.getBytes();
 			DatagramPacket pkt = new DatagramPacket(req, req.length);
@@ -159,7 +158,8 @@ public class ChatManager {
 			byte[] ans = new byte[MESSAGE_BUFFER_SIZE];
 			pkt = new DatagramPacket(ans, ans.length);
 			sockCmd.receive(pkt); // blocking read
-			return new JSONObject(String.valueOf(ans));
+			return new JSONObject(new String(pkt.getData()));
+			//return new JSONObject(String.valueOf(ans);
 
 		} catch (JSONException e) {
 			e.printStackTrace();
@@ -183,7 +183,8 @@ public class ChatManager {
 			assert (o.get("success").equals("reg_ok"));
 
 			// get clocks (from register answer)
-			String index = (String) o.get("index");
+			//String index = (String) o.get("index");
+			String index = o.get("index").toString();
 			JSONObject v = o.getJSONObject("time_vector");
 			Iterator<Integer> i = v.keys();
 			while (i.hasNext()) {
