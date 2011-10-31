@@ -74,6 +74,7 @@ public class ChatManager {
 					byte[] msg = new byte[MESSAGE_BUFFER_SIZE];
 					DatagramPacket pkt = new DatagramPacket(msg, msg.length);
 					sockCmd.receive(pkt); // blocking read
+					//TODO: NullPointerException
 					Message m = handler.obtainMessage();
 					Bundle b = new Bundle();
 					b.putString("msg", String.valueOf(msg));
@@ -127,6 +128,7 @@ public class ChatManager {
 
 	private String cmdMsg(String text, Map<Integer, Integer> clocks) {
 		JSONObject o = new JSONObject();
+		//TODO: ClassCastException
 		JSONObject t = new JSONObject(clocks);
 		try {
 			o.put("cmd", "message");
@@ -186,11 +188,16 @@ public class ChatManager {
 			//String index = (String) o.get("index");
 			String index = o.get("index").toString();
 			JSONObject v = o.getJSONObject("time_vector");
-			Iterator<Integer> i = v.keys();
+			Iterator<String> i = v.keys();
 			while (i.hasNext()) {
-				Integer c = i.next();
-				clocks.put(c, o.getInt(c.toString()));
+				Integer c = Integer.decode(i.next());
+				clocks.put(c, v.getInt(c.toString()));
 			}
+			//Iterator<Integer> i = v.keys();
+			//while (i.hasNext()) {
+			//	Integer c = i.next();
+			//	clocks.put(c, o.getInt(c.toString()));
+			//}
 
 			// get client list
 			o = execCmd(cmdGetClients()).getJSONObject("clients");
@@ -211,6 +218,7 @@ public class ChatManager {
 	}
 
 	public void disconnect() {
+		//TODO: NullPointerException
 		chatThread.stop();
 		JSONObject o = execCmd(cmdDereg()); // answer {"success":"dreg_ok"}
 		try {
