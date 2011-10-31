@@ -128,7 +128,7 @@ public class ChatManager {
 
 	private String cmdMsg(String text, Map<Integer, Integer> clocks) {
 		JSONObject o = new JSONObject();
-		//TODO: ClassCastException
+		//TODO: ClassCastException, should work according to documentation.
 		JSONObject t = new JSONObject(clocks);
 		try {
 			o.put("cmd", "message");
@@ -218,7 +218,7 @@ public class ChatManager {
 	}
 
 	public void disconnect() {
-		//TODO: NullPointerException
+		//TODO: NullPointerException --> does not appear anymore (?)
 		chatThread.stop();
 		JSONObject o = execCmd(cmdDereg()); // answer {"success":"dreg_ok"}
 		try {
