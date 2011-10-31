@@ -22,7 +22,7 @@ public class ChatActivity extends Activity {
 	/** Called when the activity is unloaded. */
 	@Override
 	public void onDestroy() {
-		// chat.disconnect();
+		chat.disconnect();
 		super.onDestroy();
 	}
 

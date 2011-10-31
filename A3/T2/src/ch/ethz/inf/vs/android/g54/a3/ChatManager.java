@@ -1,6 +1,7 @@
 package ch.ethz.inf.vs.android.g54.a3;
 
 import java.io.IOException;
+import java.io.InterruptedIOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -32,10 +33,11 @@ public class ChatManager {
 
 	String user = "Llama";
 	DatagramSocket sockCmd = null;
-	Thread chatThread = null;
+	ChatThread chatThread = null;
 	Handler handler = null;
 
-	Map<Integer, Integer> clocks = new HashMap<Integer, Integer>();
+	String clockIdx;
+	Map<String, Integer> clocks = new HashMap<String, Integer>();
 	Map<String, String> clients = new HashMap<String, String>();
 
 	private ChatManager() {
@@ -51,44 +53,48 @@ public class ChatManager {
 			e.printStackTrace();
 		}
 	}
-	
-	class ChatThread implements Runnable {
-		
-		DatagramSocket sock = null;
+
+	class ChatThread extends Thread {
+		boolean initShutdown = false;
+		DatagramSocket sockMsg = null;
 		Handler handler;
-		
+
 		public ChatThread(Handler handler) {
 			this.handler = handler;
 		}
-		
+
 		@Override
 		public void run() {
+			initShutdown = false;
 			try {
-				// TODO: CHECK: if we only receive on this port but don't send
-				// we don't need the hostname resolved, nor the sock.connect
-				InetAddress adrServer = InetAddress.getByName(SERVER);
-				sock = new DatagramSocket(4001);
-				sock.connect(adrServer, 4001); // set default socket for send/recv
+				sockMsg = new DatagramSocket(4001);
+				sockMsg.setSoTimeout(1000);
 
-				while (true) {
-					byte[] msg = new byte[MESSAGE_BUFFER_SIZE];
-					DatagramPacket pkt = new DatagramPacket(msg, msg.length);
-					sockCmd.receive(pkt); // blocking read
-					//TODO: NullPointerException
-					Message m = handler.obtainMessage();
-					Bundle b = new Bundle();
-					b.putString("msg", String.valueOf(msg));
-					m.setData(b);
-					m.sendToTarget();
+				while (!initShutdown) {
+					try {
+						byte[] msg = new byte[MESSAGE_BUFFER_SIZE];
+						DatagramPacket pkt = new DatagramPacket(msg, msg.length);
+						sockMsg.receive(pkt); // blocking read
+						Message m = handler.obtainMessage();
+						Bundle b = new Bundle();
+						b.putString("msg", new String(pkt.getData()));
+						m.setData(b);
+						m.sendToTarget();
+					} catch (InterruptedIOException e) {
+						// receive hit the timeout
+					}
 				}
+				sockMsg.close();
 
-			} catch (UnknownHostException e) {
-				e.printStackTrace();
 			} catch (SocketException e) {
 				e.printStackTrace();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
+		}
+
+		public void initShutdown() {
+			initShutdown = true;
 		}
 	}
 	
@@ -126,9 +132,9 @@ public class ChatManager {
 		return o.toString();
 	}
 
-	private String cmdMsg(String text, Map<Integer, Integer> clocks) {
+	private String cmdMsg(String text, Map<String, Integer> clocks) {
 		JSONObject o = new JSONObject();
-		//TODO: ClassCastException, should work according to documentation.
+		incClockTick();
 		JSONObject t = new JSONObject(clocks);
 		try {
 			o.put("cmd", "message");
@@ -175,6 +181,10 @@ public class ChatManager {
 		execCmd(cmdMsg(text, clocks));
 	}
 
+	private void incClockTick() {
+		clocks.put(clockIdx, clocks.get(clockIdx) + 1);
+	}
+
 	@SuppressWarnings("unchecked")
 	public void connect() {
 		try {
@@ -185,19 +195,14 @@ public class ChatManager {
 			assert (o.get("success").equals("reg_ok"));
 
 			// get clocks (from register answer)
-			//String index = (String) o.get("index");
-			String index = o.get("index").toString();
+			clockIdx = Integer.toString(o.getInt("index"));
 			JSONObject v = o.getJSONObject("time_vector");
 			Iterator<String> i = v.keys();
 			while (i.hasNext()) {
+				// Redundant but will trigger a NumberFormatException if not a number
 				Integer c = Integer.decode(i.next());
-				clocks.put(c, v.getInt(c.toString()));
+				clocks.put(c.toString(), v.getInt(c.toString()));
 			}
-			//Iterator<Integer> i = v.keys();
-			//while (i.hasNext()) {
-			//	Integer c = i.next();
-			//	clocks.put(c, o.getInt(c.toString()));
-			//}
 
 			// get client list
 			o = execCmd(cmdGetClients()).getJSONObject("clients");
@@ -210,7 +215,7 @@ public class ChatManager {
 				clients.put(c, (String) o.getString(c));
 			}
 
-			chatThread = new Thread(new ChatThread(handler));
+			chatThread = new ChatThread(handler);
 			chatThread.start();
 		} catch (JSONException e) {
 			e.printStackTrace();
@@ -218,13 +223,18 @@ public class ChatManager {
 	}
 
 	public void disconnect() {
-		//TODO: NullPointerException --> does not appear anymore (?)
-		chatThread.stop();
-		JSONObject o = execCmd(cmdDereg()); // answer {"success":"dreg_ok"}
-		try {
-			assert (o.getString("success").equals("dreg_ok"));
-		} catch (JSONException e) {
-			e.printStackTrace();
+		if (chatThread.isAlive()) {
+			chatThread.initShutdown();
+			try {
+				chatThread.join();
+
+				JSONObject o = execCmd(cmdDereg()); // answer {"success":"dreg_ok"}
+				assert (o.getString("success").equals("dreg_ok"));
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 
