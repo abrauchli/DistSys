@@ -180,7 +180,7 @@ public class ChatManager {
 
 	}
 	
-	private JSONObject execCmd(String cmd) {
+	private JSONObject execCmd(String cmd, boolean receive) {
 		try {
 			byte[] req = cmd.getBytes();
 			DatagramPacket pkt = new DatagramPacket(req, req.length);
@@ -188,9 +188,10 @@ public class ChatManager {
 
 			byte[] ans = new byte[MESSAGE_BUFFER_SIZE];
 			pkt = new DatagramPacket(ans, ans.length);
-			sockCmd.receive(pkt); // blocking read
-			return new JSONObject(new String(pkt.getData()));
-			//return new JSONObject(String.valueOf(ans);
+			if (receive) {
+				sockCmd.receive(pkt); // blocking read
+				return new JSONObject(new String(pkt.getData()));
+			}
 
 		} catch (JSONException e) {
 			e.printStackTrace();
@@ -201,7 +202,7 @@ public class ChatManager {
 	}
 
 	public void sendMsg(String text) {
-		execCmd(cmdMsg(text, clocks));
+		execCmd(cmdMsg(text, clocks), false);
 	}
 
 	private void incClockTick() {
@@ -212,7 +213,7 @@ public class ChatManager {
 	public void connect() {
 		try {
 			// register
-			JSONObject o = execCmd(cmdReg(user));
+			JSONObject o = execCmd(cmdReg(user), true);
 			// answer:
 			// {"index":3,"time_vector":{"3":0,"2":70,"1":71,"0":74},"success":"reg_ok"}
 			assert (o.get("success").equals("reg_ok"));
@@ -228,7 +229,7 @@ public class ChatManager {
 			}
 
 			// get client list
-			o = execCmd(cmdGetClients()).getJSONObject("clients");
+			o = execCmd(cmdGetClients(), true).getJSONObject("clients");
 			// answer: {"clients":
 			// {"/129.132.75.130":"QuestionBot","/129.132.252.221":"AnswerBot","/77.58.228.17":"willi"}
 			// }
@@ -251,7 +252,7 @@ public class ChatManager {
 			try {
 				chatThread.join();
 
-				JSONObject o = execCmd(cmdDereg()); // answer {"success":"dreg_ok"}
+				JSONObject o = execCmd(cmdDereg(), true); // answer {"success":"dreg_ok"}
 				assert (o.getString("success").equals("dreg_ok"));
 			} catch (InterruptedException e) {
 				e.printStackTrace();
