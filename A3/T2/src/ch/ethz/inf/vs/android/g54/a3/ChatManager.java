@@ -12,6 +12,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -42,8 +43,8 @@ public class ChatManager {
 	MessageHandler handler = new MessageHandler();
 
 	String clockIdx;
-	Map<String, Integer> clocks = new HashMap<String, Integer>();
-	Map<String, String> clients = new HashMap<String, String>();
+	final Map<String, Integer> clocks = new HashMap<String, Integer>();
+	final Map<String, String> clients = new HashMap<String, String>();
 
 	private ChatManager() {
 		try {
@@ -111,6 +112,7 @@ public class ChatManager {
 	class MessageHandler extends Handler {
 		private ChatActivity uiActivity;
 		private List<String> msgs = new LinkedList<String>();
+		private Map<String, Integer> delayed = new TreeMap<String, Integer>();
 
 		public void setUiActivity(ChatActivity uiActivity) {
 			this.uiActivity = uiActivity;
@@ -124,13 +126,33 @@ public class ChatManager {
 			}
 			try {
 				JSONObject o = new JSONObject(msg.getData().getString("msg"));
-				msgs.add(o.getString("text"));
+				msgs.add(o.getString("sender") + ": " + o.getString("text"));
 				ListView v = (ListView) uiActivity.findViewById(R.id.list_view_messages);
 				String[] arMsgs = new String[msgs.size()];
 				v.setAdapter(new ArrayAdapter<String>(uiActivity, R.layout.li_msg, msgs.toArray(arMsgs)));
 			} catch (JSONException e) {
 				e.printStackTrace();
 			}
+		}
+
+		private boolean isDeliverable(JSONObject msgObject) throws JSONException {
+			JSONObject vecTime = msgObject.getJSONObject("time_vector");
+			Iterator<String> i = vecTime.keys();
+			while (i.hasNext()) {
+				String s = i.next();
+				if (clocks.containsKey(s)) {
+					// We already have the clock
+					int ours = clocks.get(s);
+					int theirs = vecTime.getInt(s);
+					if (theirs > ours) {
+						clocks.put(s, theirs);
+					}
+				} else {
+					// There's a new clock
+					clocks.put(s, vecTime.getInt(s));
+				}
+			}
+			return true;
 		}
 	}
 
@@ -202,7 +224,13 @@ public class ChatManager {
 	}
 
 	public void sendMsg(String text) {
-		execCmd(cmdMsg(text, clocks), false);
+		String json = cmdMsg(text, clocks);
+		execCmd(json, false);
+		Message m = handler.obtainMessage();
+		Bundle b = new Bundle();
+		b.putString("msg", json);
+		m.setData(b);
+		m.sendToTarget();
 	}
 
 	private void incClockTick() {
