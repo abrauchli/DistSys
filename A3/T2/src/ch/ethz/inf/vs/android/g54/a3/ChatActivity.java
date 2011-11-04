@@ -32,9 +32,7 @@ public class ChatActivity extends Activity {
 	}
 
 	public void onDeregisterClick(View w) {
-		chat.disconnect();
-		Intent i = new Intent(this, MainActivity.class);
-		startActivity(i);
+		finish();
 	}
 
 	public void onSendClick(View w) {
