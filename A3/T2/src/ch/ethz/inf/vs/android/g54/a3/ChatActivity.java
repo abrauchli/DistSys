@@ -1,14 +1,17 @@
 package ch.ethz.inf.vs.android.g54.a3;
 
+import ch.ethz.inf.vs.android.g54.a3.ChatManager.MessageHandler;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.View;
 import android.widget.EditText;
 
 public class ChatActivity extends Activity {
 
 	ChatManager chat = null;
+	MessageHandler h = null;
 
 	/** Called when the activity is first created. */
 	@Override
@@ -17,6 +20,8 @@ public class ChatActivity extends Activity {
 		setContentView(R.layout.chat);
 
 		chat = ChatManager.getInstance();
+		h = chat.getHandler();
+		h.setUiActivity(this);
 	}
 
 	/** Called when the activity is unloaded. */

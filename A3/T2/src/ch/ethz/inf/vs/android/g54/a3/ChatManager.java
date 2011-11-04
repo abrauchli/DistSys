@@ -9,6 +9,8 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import org.json.JSONException;
@@ -17,6 +19,8 @@ import org.json.JSONObject;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 
 public class ChatManager {
 	// Singleton
@@ -34,7 +38,8 @@ public class ChatManager {
 	String user = "Llama";
 	DatagramSocket sockCmd = null;
 	ChatThread chatThread = null;
-	Handler handler = null;
+
+	MessageHandler handler = new MessageHandler();
 
 	String clockIdx;
 	Map<String, Integer> clocks = new HashMap<String, Integer>();
@@ -52,6 +57,10 @@ public class ChatManager {
 		} catch (SocketException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public MessageHandler getHandler() {
+		return this.handler;
 	}
 
 	class ChatThread extends Thread {
@@ -75,6 +84,7 @@ public class ChatManager {
 						byte[] msg = new byte[MESSAGE_BUFFER_SIZE];
 						DatagramPacket pkt = new DatagramPacket(msg, msg.length);
 						sockMsg.receive(pkt); // blocking read
+						String answer = new String(pkt.getData());
 						Message m = handler.obtainMessage();
 						Bundle b = new Bundle();
 						b.putString("msg", new String(pkt.getData()));
@@ -97,14 +107,27 @@ public class ChatManager {
 			initShutdown = true;
 		}
 	}
-	
+
 	class MessageHandler extends Handler {
+		private ChatActivity uiActivity;
+		private List<String> msgs = new LinkedList<String>();
+
+		public void setUiActivity(ChatActivity uiActivity) {
+			this.uiActivity = uiActivity;
+		}
+
 		@Override
 		public void handleMessage(Message msg) {
 			super.handleMessage(msg);
+			if (uiActivity == null) {
+				return;
+			}
 			try {
 				JSONObject o = new JSONObject(msg.getData().getString("msg"));
-				// TODO: what to do on message ?
+				msgs.add(o.getString("text"));
+				ListView v = (ListView) uiActivity.findViewById(R.id.list_view_messages);
+				String[] arMsgs = new String[msgs.size()];
+				v.setAdapter(new ArrayAdapter<String>(uiActivity, R.layout.li_msg, msgs.toArray(arMsgs)));
 			} catch (JSONException e) {
 				e.printStackTrace();
 			}
