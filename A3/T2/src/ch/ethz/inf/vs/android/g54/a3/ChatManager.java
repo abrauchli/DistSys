@@ -139,11 +139,12 @@ public class ChatManager {
 			}
 			try {
 				JSONObject o = new JSONObject(msg.getData().getString("msg"));
-				if (!acceptMessage(o)) {
-					return;
-				}
 				String text = o.getString("text");
 				if (o.has("sender")) {
+					// only filter messages if a sender is set (local msgs dont have it)
+					if (!acceptMessage(o)) {
+						return;
+					}
 					text = o.getString("sender") + ": " + text;
 				}
 				msgs.add(text);
