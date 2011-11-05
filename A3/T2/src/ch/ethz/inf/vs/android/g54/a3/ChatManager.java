@@ -85,7 +85,6 @@ public class ChatManager {
 						byte[] msg = new byte[MESSAGE_BUFFER_SIZE];
 						DatagramPacket pkt = new DatagramPacket(msg, msg.length);
 						sockMsg.receive(pkt); // blocking read
-						String answer = new String(pkt.getData());
 						Message m = handler.obtainMessage();
 						Bundle b = new Bundle();
 						b.putString("msg", new String(pkt.getData()));
