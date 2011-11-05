@@ -79,6 +79,7 @@ public class ChatManager {
 			try {
 				sockMsg = new DatagramSocket(4001);
 				sockMsg.setSoTimeout(1000);
+				int keepalive = 20;
 
 				while (!initShutdown) {
 					try {
@@ -92,6 +93,12 @@ public class ChatManager {
 						m.sendToTarget();
 					} catch (InterruptedIOException e) {
 						// receive hit the timeout
+						if (--keepalive == 0) {
+							// send a little info every now and then to prevent
+							// the server from capping us
+							execCmd(cmdInfo(), true);
+							keepalive = 20;
+						}
 					}
 				}
 				sockMsg.close();
@@ -175,6 +182,16 @@ public class ChatManager {
 		JSONObject o = new JSONObject();
 		try {
 			o.put("cmd", "deregister");
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return o.toString();
+	}
+
+	private String cmdInfo() {
+		JSONObject o = new JSONObject();
+		try {
+			o.put("cmd", "info");
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
