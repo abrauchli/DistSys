@@ -151,6 +151,7 @@ public class ChatManager {
 				ListView v = (ListView) uiActivity.findViewById(R.id.list_view_messages);
 				String[] arMsgs = new String[msgs.size()];
 				v.setAdapter(new ArrayAdapter<String>(uiActivity, R.layout.li_msg, msgs.toArray(arMsgs)));
+				v.smoothScrollToPosition(msgs.size());
 			} catch (JSONException e) {
 				e.printStackTrace();
 			}
