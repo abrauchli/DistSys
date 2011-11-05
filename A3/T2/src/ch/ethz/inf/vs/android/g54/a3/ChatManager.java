@@ -177,19 +177,40 @@ public class ChatManager {
 		private boolean isDeliverable(JSONObject msgObject) throws JSONException {
 			JSONObject vecTime = msgObject.getJSONObject("time_vector");
 			@SuppressWarnings("unchecked")
+			String sender = msgObject.getString("sender");
+			int idx = sender.equals("Server") ? 0
+					: (sender.equals("QuestionBot") ? 1
+					: (sender.equals("AnswerBot") ? 2 : -1));
 			Iterator<String> i = vecTime.keys();
 			while (i.hasNext()) {
 				String s = i.next();
+				boolean enqueue = false;
+				boolean dequeue = false;
 				if (clocks.containsKey(s)) {
 					// We already have the clock
+					int key = Integer.parseInt(s);
 					int ours = clocks.get(s);
 					int theirs = vecTime.getInt(s);
 					if (theirs > ours) {
-						clocks.put(s, theirs);
+						if (idx == key && theirs - ours == 1) {
+								clocks.put(s, theirs);
+						} else {
+							// put it in the queue and wait for missing msgs
+							enqueue = true;
+						}
+					} else {
+						// late msg, others might be waiting on it
+						dequeue = true;
 					}
 				} else {
 					// There's a new clock
 					clocks.put(s, vecTime.getInt(s));
+				}
+				if (enqueue) {
+					// enqueue
+				}
+				if (dequeue) {
+					// dequeue
 				}
 			}
 			return true;
