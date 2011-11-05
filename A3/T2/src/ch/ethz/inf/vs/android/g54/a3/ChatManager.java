@@ -126,7 +126,11 @@ public class ChatManager {
 			}
 			try {
 				JSONObject o = new JSONObject(msg.getData().getString("msg"));
-				msgs.add(o.getString("sender") + ": " + o.getString("text"));
+				String text = o.getString("text");
+				if (o.has("sender")) {
+					text = o.getString("sender") + ": " + text;
+				}
+				msgs.add(text);
 				ListView v = (ListView) uiActivity.findViewById(R.id.list_view_messages);
 				String[] arMsgs = new String[msgs.size()];
 				v.setAdapter(new ArrayAdapter<String>(uiActivity, R.layout.li_msg, msgs.toArray(arMsgs)));
