@@ -33,6 +33,8 @@ public class ChatManager {
 		return instance;
 	}
 
+	final String MESSAGE_TAG = "[g54]";
+	final String[] SENDER_WHITELIST = { "Server", "QuestionBot", "AnswerBot" };
 	final String SERVER = "vswot.inf.ethz.ch";
 	final int MESSAGE_BUFFER_SIZE = 2048;
 
@@ -137,6 +139,9 @@ public class ChatManager {
 			}
 			try {
 				JSONObject o = new JSONObject(msg.getData().getString("msg"));
+				if (!acceptMessage(o)) {
+					return;
+				}
 				String text = o.getString("text");
 				if (o.has("sender")) {
 					text = o.getString("sender") + ": " + text;
@@ -148,6 +153,23 @@ public class ChatManager {
 			} catch (JSONException e) {
 				e.printStackTrace();
 			}
+		}
+
+		private boolean acceptMessage(JSONObject o) throws JSONException {
+			// filter out invalid message tags
+			if (o.has("tag")) {
+				if (!o.get("tag").equals(MESSAGE_TAG)) {
+					return false;
+				}
+			}
+			// filter whitelisted senders
+			String sender = o.getString("sender");
+			for (String s : SENDER_WHITELIST) {
+				if (s.equals(sender)) {
+					return true;
+				}
+			}
+			return false;
 		}
 
 		private boolean isDeliverable(JSONObject msgObject) throws JSONException {
@@ -210,6 +232,7 @@ public class ChatManager {
 		try {
 			o.put("cmd", "message");
 			o.put("text", text);
+			o.put("tag", MESSAGE_TAG);
 			o.put("time_vector", t);
 		} catch (JSONException e) {
 			e.printStackTrace();
