@@ -67,9 +67,9 @@ public class ChatManager {
 	class ChatThread extends Thread {
 		boolean initShutdown = false;
 		DatagramSocket sockMsg = null;
-		Handler handler;
+		MessageHandler handler;
 
-		public ChatThread(Handler handler) {
+		public ChatThread(MessageHandler handler) {
 			this.handler = handler;
 		}
 
@@ -122,6 +122,11 @@ public class ChatManager {
 
 		public void setUiActivity(ChatActivity uiActivity) {
 			this.uiActivity = uiActivity;
+		}
+
+		public void clearMessages() {
+			msgs.clear();
+			delayed.clear();
 		}
 
 		@Override
@@ -309,6 +314,7 @@ public class ChatManager {
 				e.printStackTrace();
 			}
 		}
+		handler.clearMessages();
 	}
 
 	public void setUser(String user) {
