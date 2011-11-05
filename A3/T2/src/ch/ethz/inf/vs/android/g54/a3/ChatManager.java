@@ -157,10 +157,10 @@ public class ChatManager {
 		}
 
 		private boolean acceptMessage(JSONObject o) throws JSONException {
-			// filter out invalid message tags
+			// filter on message tags
 			if (o.has("tag")) {
-				if (!o.get("tag").equals(MESSAGE_TAG)) {
-					return false;
+				if (o.get("tag").equals(MESSAGE_TAG)) {
+					return true;
 				}
 			}
 			// filter whitelisted senders
