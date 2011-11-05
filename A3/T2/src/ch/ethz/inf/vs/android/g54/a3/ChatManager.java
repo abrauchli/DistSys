@@ -137,6 +137,7 @@ public class ChatManager {
 
 		private boolean isDeliverable(JSONObject msgObject) throws JSONException {
 			JSONObject vecTime = msgObject.getJSONObject("time_vector");
+			@SuppressWarnings("unchecked")
 			Iterator<String> i = vecTime.keys();
 			while (i.hasNext()) {
 				String s = i.next();

@@ -2,9 +2,7 @@ package ch.ethz.inf.vs.android.g54.a3;
 
 import ch.ethz.inf.vs.android.g54.a3.ChatManager.MessageHandler;
 import android.app.Activity;
-import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.view.View;
 import android.widget.EditText;
 
