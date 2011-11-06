@@ -189,11 +189,14 @@ public class ChatManager {
 		}
 
 		private boolean isDeliverable(JSONObject msgObject) throws JSONException {
-			int clock = msgObject.getJSONObject("time_vector").getInt("0");
-			if (clock > clocks.get("0") + 1) {
-				assert (!delayed.containsKey(clock));
-				delayed.put(clock, msgObject);
+			int theirs = msgObject.getJSONObject("time_vector").getInt("0");
+			int ours = clocks.get("0");
+			if (theirs > ours + 1) {
+				assert (!delayed.containsKey(theirs));
+				delayed.put(theirs, msgObject);
 				return false;
+			} else if (theirs > ours) {
+				clocks.put("0", theirs);
 			}
 			return true;
 		}
@@ -299,7 +302,7 @@ public class ChatManager {
 
 	private void incClockTick() {
 		// increment the lamport time
-		clocks.put("0", clocks.get(0) + 1);
+		clocks.put("0", clocks.get("0") + 1);
 	}
 
 	@SuppressWarnings("unchecked")
