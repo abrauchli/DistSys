@@ -99,7 +99,8 @@ public class ChatManager {
 						if (--keepalive == 0) {
 							// send a little info every now and then to prevent
 							// the server from capping us
-							execCmd(cmdInfo(), true);
+							incClockTick();
+							execCmd(cmdMsg("ping", clocks), false);
 							keepalive = 20;
 						}
 					}
@@ -365,6 +366,7 @@ public class ChatManager {
 				clocks.put(c.toString(), v.getInt(c.toString()));
 			}
 
+			/*
 			// get client list
 			o = execCmd(cmdGetClients(), true).getJSONObject("clients");
 			// answer: {"clients":
@@ -375,6 +377,7 @@ public class ChatManager {
 				String c = s.next();
 				clients.put(c, (String) o.getString(c));
 			}
+			*/
 
 			chatThread = new ChatThread(handler);
 			chatThread.start();
