@@ -121,12 +121,8 @@ public class ChatManager {
 		private ArrayAdapter<String> msgs;
 		private LinkedList<JSONObject> delayed = new LinkedList<JSONObject>();
 		private ListView view;
-		private LinkedList<Integer> idxWhitelist = new LinkedList<Integer>();
 
 		public void setUiActivity(ChatActivity uiActivity) {
-			idxWhitelist.add(0); // Server
-			idxWhitelist.add(1); // QuestionBot
-			idxWhitelist.add(2); // AnswerBot
 			this.uiActivity = uiActivity;
 			msgs = new ArrayAdapter<String>(uiActivity, R.layout.li_msg);
 			view = (ListView) uiActivity.findViewById(R.id.list_view_messages);
@@ -192,16 +188,15 @@ public class ChatManager {
 
 		private boolean isDeliverable(JSONObject msgObject) throws JSONException {
 			JSONObject vecTime = msgObject.getJSONObject("time_vector");
-			@SuppressWarnings("unchecked")
 			String sender = msgObject.getString("sender");
 
 			// TODO: find better way to implement that w.r.t. dynamic clients
 			int idx = sender.equals("QuestionBot") ? 1
 					: sender.equals("AnswerBot") ? 2
+					: msgObject.has("index") ? msgObject.getInt("index")
 					: -1;
 
 			boolean enqueue = false;
-			int diff = 0;
 			int newVal = -1;
 
 			@SuppressWarnings("unchecked")
@@ -211,7 +206,7 @@ public class ChatManager {
 				if (clocks.containsKey(s)) {
 					// We already have the clock
 					int key = Integer.parseInt(s);
-					if (!idxWhitelist.contains(key))
+					if (idx < 0)
 						continue;
 					int ours = clocks.get(s);
 					int theirs = vecTime.getInt(s);
@@ -247,6 +242,7 @@ public class ChatManager {
 
 				int idx = sender.equals("QuestionBot") ? 1
 					: sender.equals("AnswerBot") ? 2
+					: o.has("index") ? o.getInt("index")
 					: -1;
 				@SuppressWarnings("unchecked")
 				Iterator<String> j = vecTime.keys();
@@ -256,7 +252,7 @@ public class ChatManager {
 				while (j.hasNext()) {
 					String s = j.next();
 					int key = Integer.parseInt(s);
-					if (!idxWhitelist.contains(key))
+					if (idx < 0)
 						continue;
 					int ours = clocks.get(s);
 					int theirs = vecTime.getInt(s);
@@ -317,6 +313,7 @@ public class ChatManager {
 			o.put("cmd", "message");
 			o.put("text", text);
 			o.put("tag", MESSAGE_TAG);
+			o.put("index", clockIdx);
 			o.put("time_vector", t);
 		} catch (JSONException e) {
 			e.printStackTrace();
