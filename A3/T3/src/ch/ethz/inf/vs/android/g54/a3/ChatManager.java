@@ -190,7 +190,6 @@ public class ChatManager {
 			JSONObject vecTime = msgObject.getJSONObject("time_vector");
 			String sender = msgObject.getString("sender");
 
-			// TODO: find better way to implement that w.r.t. dynamic clients
 			int idx = sender.equals("QuestionBot") ? 1
 					: sender.equals("AnswerBot") ? 2
 					: msgObject.has("index") ? msgObject.getInt("index")
