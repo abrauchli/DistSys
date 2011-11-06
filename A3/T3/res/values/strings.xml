@@ -4,7 +4,7 @@
     <string name="app_name">VS_G54_A3_2</string>
     <string name="enter_username">paul</string>
     <string name="txt_btn_register">Register</string>
-    <string name="txt_lamport_timestamps">Lamport Timestamps</string>
+    <string name="txt_lamport_timestamps">Vector clocks</string>
     <string name="txt_chat_application">Chat Application</string>
     <string name="txt_empty_string"></string>
     <string name="txt_btn_send">Send</string>
