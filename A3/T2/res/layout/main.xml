@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    >
+    <TextView android:textAppearance="?android:attr/textAppearanceLarge" android:layout_height="wrap_content" android:layout_width="wrap_content" android:text="@string/txt_chat_application" android:id="@+id/textview_title"></TextView>
+    <TextView android:textAppearance="?android:attr/textAppearanceSmall" android:layout_height="wrap_content" android:layout_width="wrap_content" android:text="@string/txt_lamport_timestamps" android:id="@+id/textview_timestamp_type"></TextView>
+    <EditText android:layout_height="wrap_content" android:layout_width="match_parent" android:layout_marginTop="10px" android:text="@string/enter_username" android:id="@+id/txt_username">
+        <requestFocus></requestFocus>
+    </EditText>
+    <Button android:layout_height="wrap_content" android:layout_width="match_parent" android:id="@+id/btn_register" android:text="@string/txt_btn_register" android:onClick="onConnectClick"></Button>
+</LinearLayout>
