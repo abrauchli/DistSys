@@ -16,9 +16,13 @@ public class MainActivity extends Activity {
 		String s = txt.getEditableText().toString();
 		if (s.length() > 3) {
 			chat.setUser(s);
-			chat.connect();
-			Intent i = new Intent(this, ChatActivity.class);
-			startActivity(i);
+			if (chat.connect()) {
+				Intent i = new Intent(this, ChatActivity.class);
+				startActivity(i);
+			} else {
+				Toast t = Toast.makeText(this, "Couldn't connect", Toast.LENGTH_SHORT);
+				t.show();
+			}
 		} else {
 			Toast t = Toast.makeText(this, "Invalid user name", Toast.LENGTH_SHORT);
 			t.show();

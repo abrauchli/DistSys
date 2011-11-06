@@ -351,13 +351,14 @@ public class ChatManager {
 	}
 
 	@SuppressWarnings("unchecked")
-	public void connect() {
+	public boolean connect() {
 		try {
 			// register
 			JSONObject o = execCmd(cmdReg(user), true);
 			// answer:
 			// {"index":3,"time_vector":{"3":0,"2":70,"1":71,"0":74},"success":"reg_ok"}
-			assert (o.get("success").equals("reg_ok"));
+			if (o == null || !o.getString("success").equals("reg_ok"))
+				return false;
 
 			// get clocks (from register answer)
 			clockIdx = Integer.toString(o.getInt("index"));
@@ -384,8 +385,10 @@ public class ChatManager {
 
 			chatThread = new ChatThread(handler);
 			chatThread.start();
+			return true;
 		} catch (JSONException e) {
 			e.printStackTrace();
+			return false;
 		}
 	}
 
