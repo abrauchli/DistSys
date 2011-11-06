@@ -204,11 +204,14 @@ public class ChatManager {
 				if (clocks.containsKey(s)) {
 					// We already have the clock
 					int key = Integer.parseInt(s);
+					if (idx != key)
+						continue;
 					int ours = clocks.get(s);
 					int theirs = vecTime.getInt(s);
 					if (theirs > ours) {
-						if (idx == key && theirs - ours == 1) {
-								clocks.put(s, theirs);
+						if (theirs - ours == 1) {
+							// sender incremented his clock: update ours
+							clocks.put(s, theirs);
 						} else {
 							// put it in the queue and wait for missing msgs
 							enqueue = true;
@@ -241,7 +244,7 @@ public class ChatManager {
 							continue;
 						int ours = clocks.get(s);
 						int theirs = vecTime.getInt(s);
-						if (idx == key && theirs - ours == 1) {
+						if (theirs - ours == 1) {
 							clocks.put(s, theirs);
 							delayed.remove(n);
 							n = 0; // restart looping
@@ -251,7 +254,7 @@ public class ChatManager {
 					}
 				}
 			}
-			return true;
+			return !enqueue;
 		}
 	}
 
