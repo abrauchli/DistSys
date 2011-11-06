@@ -11,6 +11,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -119,7 +121,7 @@ public class ChatManager {
 	class MessageHandler extends Handler {
 		private ChatActivity uiActivity;
 		private ArrayAdapter<String> msgs;
-		private LinkedList<JSONObject> delayed = new LinkedList<JSONObject>();
+		TreeMap<Integer, JSONObject> delayed = new TreeMap<Integer, JSONObject>();
 		private ListView view;
 
 		public void setUiActivity(ChatActivity uiActivity) {
@@ -187,89 +189,22 @@ public class ChatManager {
 		}
 
 		private boolean isDeliverable(JSONObject msgObject) throws JSONException {
-			JSONObject vecTime = msgObject.getJSONObject("time_vector");
-			String sender = msgObject.getString("sender");
-
-			// TODO: find better way to implement that w.r.t. dynamic clients
-			int idx = sender.equals("QuestionBot") ? 1
-					: sender.equals("AnswerBot") ? 2
-					: msgObject.has("index") ? msgObject.getInt("index")
-					: -1;
-
-			boolean enqueue = false;
-			int newVal = -1;
-
-			@SuppressWarnings("unchecked")
-			Iterator<String> i = vecTime.keys();
-			while (i.hasNext()) {
-				String s = i.next();
-				if (clocks.containsKey(s)) {
-					// We already have the clock
-					int key = Integer.parseInt(s);
-					if (idx < 0)
-						continue;
-					int ours = clocks.get(s);
-					int theirs = vecTime.getInt(s);
-					if (theirs > ours) {
-						if (idx == key && theirs - ours == 1) {
-							// sender incremented his clock
-							// update ours if there's not another msg to wait for
-							newVal = theirs;
-						} else {
-							// put it in the queue and wait for missing msgs
-							enqueue = true;
-						}
-					}
-				} else {
-					// There's a new clock
-					clocks.put(s, vecTime.getInt(s));
-				}
+			int clock = msgObject.getJSONObject("time_vector").getInt("0");
+			if (clock > clocks.get("0") + 1) {
+				assert (!delayed.containsKey(clock));
+				delayed.put(clock, msgObject);
+				return false;
 			}
-
-			if (enqueue) {
-				delayed.add(msgObject);
-			} else if (newVal > -1) {
-				clocks.put(Integer.toString(idx), newVal);
-			}
-			return !enqueue;
+			return true;
 		}
 
 		public void dequeueMessages() throws JSONException {
-			for (int n = 0; n < delayed.size(); ++n) {
-				JSONObject o = delayed.get(n);
-				String sender = o.getString("sender");
-				JSONObject vecTime = o.getJSONObject("time_vector");
-
-				int idx = sender.equals("QuestionBot") ? 1
-					: sender.equals("AnswerBot") ? 2
-					: o.has("index") ? o.getInt("index")
-					: -1;
-				@SuppressWarnings("unchecked")
-				Iterator<String> j = vecTime.keys();
-				int newVal = -1;
-				boolean abort = false;
-
-				while (j.hasNext()) {
-					String s = j.next();
-					int key = Integer.parseInt(s);
-					if (idx < 0)
-						continue;
-					int ours = clocks.get(s);
-					int theirs = vecTime.getInt(s);
-					if (idx == key && theirs - ours == 1) {
-						newVal = theirs;
-					} else if (theirs - ours > 0){
-						abort = true;
-						break;
-					}
-				}
-
-				if (!abort && newVal > -1) {
-					clocks.put(Integer.toString(idx), newVal);
-					delayed.remove(n);
-					n = 0; // restart looping
-					deliverMessage(o.getString("sender"), o.getString("text"));
-				}
+			SortedMap<Integer, JSONObject> deq = delayed.headMap(clocks.get("0") + 1);
+			while(deq.size() > 0) {
+				int i = deq.firstKey();
+				JSONObject o = deq.get(i);
+				deliverMessage(o.getString("sender"), o.getString("text"));
+				deq.remove(i);
 			}
 		}
 	}
@@ -313,7 +248,6 @@ public class ChatManager {
 			o.put("cmd", "message");
 			o.put("text", text);
 			o.put("tag", MESSAGE_TAG);
-			o.put("index", clockIdx);
 			o.put("time_vector", t);
 		} catch (JSONException e) {
 			e.printStackTrace();
@@ -364,7 +298,8 @@ public class ChatManager {
 	}
 
 	private void incClockTick() {
-		clocks.put(clockIdx, clocks.get(clockIdx) + 1);
+		// increment the lamport time
+		clocks.put("0", clocks.get(0) + 1);
 	}
 
 	@SuppressWarnings("unchecked")
