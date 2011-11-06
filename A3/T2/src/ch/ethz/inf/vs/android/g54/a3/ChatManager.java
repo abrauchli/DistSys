@@ -121,8 +121,12 @@ public class ChatManager {
 		private ArrayAdapter<String> msgs;
 		private LinkedList<JSONObject> delayed = new LinkedList<JSONObject>();
 		private ListView view;
+		private LinkedList<Integer> idxWhitelist = new LinkedList<Integer>();
 
 		public void setUiActivity(ChatActivity uiActivity) {
+			idxWhitelist.add(0); // Server
+			idxWhitelist.add(1); // QuestionBot
+			idxWhitelist.add(2); // AnswerBot
 			this.uiActivity = uiActivity;
 			msgs = new ArrayAdapter<String>(uiActivity, R.layout.li_msg);
 			view = (ListView) uiActivity.findViewById(R.id.list_view_messages);
@@ -158,6 +162,7 @@ public class ChatManager {
 					if (isDeliverable(o)) {
 						String text = o.getString("text");
 						deliverMessage(o.getString("sender"), text);
+						dequeueMessages();
 					}
 				} else {
 					String text = o.getString("text");
@@ -196,29 +201,29 @@ public class ChatManager {
 					: -1;
 
 			boolean enqueue = false;
-			boolean dequeue = false;
+			int diff = 0;
+			int newVal = -1;
 
+			@SuppressWarnings("unchecked")
 			Iterator<String> i = vecTime.keys();
 			while (i.hasNext()) {
 				String s = i.next();
 				if (clocks.containsKey(s)) {
 					// We already have the clock
 					int key = Integer.parseInt(s);
-					if (idx != key)
+					if (!idxWhitelist.contains(key))
 						continue;
 					int ours = clocks.get(s);
 					int theirs = vecTime.getInt(s);
 					if (theirs > ours) {
-						if (theirs - ours == 1) {
-							// sender incremented his clock: update ours
-							clocks.put(s, theirs);
+						if (idx == key && theirs - ours == 1) {
+							// sender incremented his clock
+							// update ours if there's not another msg to wait for
+							newVal = theirs;
 						} else {
 							// put it in the queue and wait for missing msgs
 							enqueue = true;
 						}
-					} else if (theirs < ours) {
-						// late msg, others might be waiting on it
-						dequeue = true;
 					}
 				} else {
 					// There's a new clock
@@ -228,33 +233,48 @@ public class ChatManager {
 
 			if (enqueue) {
 				delayed.add(msgObject);
-			}
-			if (dequeue) {
-				for (int n = 0; n < delayed.size(); ++n) {
-					JSONObject o = delayed.get(n);
-					// TODO: find better way to implement that w.r.t. dynamic clients
-					idx = sender.equals("QuestionBot") ? 1
-						: sender.equals("AnswerBot") ? 2
-						: -1;
-					Iterator<String> j = vecTime.keys();
-					while (j.hasNext()) {
-						String s = j.next();
-						int key = Integer.parseInt(s);
-						if (idx != key)
-							continue;
-						int ours = clocks.get(s);
-						int theirs = vecTime.getInt(s);
-						if (theirs - ours == 1) {
-							clocks.put(s, theirs);
-							delayed.remove(n);
-							n = 0; // restart looping
-							deliverMessage(o.getString("sender"), o.getString("text"));
-							break;
-						}
-					}
-				}
+			} else if (newVal > -1) {
+				clocks.put(Integer.toString(idx), newVal);
 			}
 			return !enqueue;
+		}
+
+		public void dequeueMessages() throws JSONException {
+			for (int n = 0; n < delayed.size(); ++n) {
+				JSONObject o = delayed.get(n);
+				String sender = o.getString("sender");
+				JSONObject vecTime = o.getJSONObject("time_vector");
+
+				int idx = sender.equals("QuestionBot") ? 1
+					: sender.equals("AnswerBot") ? 2
+					: -1;
+				@SuppressWarnings("unchecked")
+				Iterator<String> j = vecTime.keys();
+				int newVal = -1;
+				boolean abort = false;
+
+				while (j.hasNext()) {
+					String s = j.next();
+					int key = Integer.parseInt(s);
+					if (!idxWhitelist.contains(key))
+						continue;
+					int ours = clocks.get(s);
+					int theirs = vecTime.getInt(s);
+					if (idx == key && theirs - ours == 1) {
+						newVal = theirs;
+					} else if (theirs - ours > 0){
+						abort = true;
+						break;
+					}
+				}
+
+				if (!abort && newVal > -1) {
+					clocks.put(Integer.toString(idx), newVal);
+					delayed.remove(n);
+					n = 0; // restart looping
+					deliverMessage(o.getString("sender"), o.getString("text"));
+				}
+			}
 		}
 	}
 
