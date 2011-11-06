@@ -38,6 +38,6 @@ public final class R {
         public static final int txt_chat_application=0x7f040005;
         public static final int txt_empty_string=0x7f040006;
         public static final int txt_et_input_line=0x7f040009;
-        public static final int txt_lamport_timestamps=0x7f040004;
+        public static final int txt_vector_clocks=0x7f040004;
     }
 }

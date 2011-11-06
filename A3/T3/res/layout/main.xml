@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     >
     <TextView android:textAppearance="?android:attr/textAppearanceLarge" android:layout_height="wrap_content" android:layout_width="wrap_content" android:text="@string/txt_chat_application" android:id="@+id/textview_title"></TextView>
-    <TextView android:textAppearance="?android:attr/textAppearanceSmall" android:layout_height="wrap_content" android:layout_width="wrap_content" android:text="@string/txt_lamport_timestamps" android:id="@+id/textview_timestamp_type"></TextView>
+    <TextView android:textAppearance="?android:attr/textAppearanceSmall" android:layout_height="wrap_content" android:layout_width="wrap_content" android:id="@+id/textview_timestamp_type" android:text="@string/txt_vector_clocks"></TextView>
     <EditText android:layout_height="wrap_content" android:layout_width="match_parent" android:layout_marginTop="10px" android:text="@string/enter_username" android:id="@+id/txt_username">
         <requestFocus></requestFocus>
     </EditText>
