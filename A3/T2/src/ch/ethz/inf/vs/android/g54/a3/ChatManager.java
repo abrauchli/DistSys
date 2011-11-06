@@ -94,6 +94,7 @@ public class ChatManager {
 						m.setData(b);
 						m.sendToTarget();
 					} catch (InterruptedIOException e) {
+						//TODO: does not help...
 						// receive hit the timeout
 						if (--keepalive == 0) {
 							// send a little info every now and then to prevent
