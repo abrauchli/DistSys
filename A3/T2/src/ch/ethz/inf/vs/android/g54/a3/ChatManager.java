@@ -7,12 +7,12 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -119,8 +119,8 @@ public class ChatManager {
 
 	class MessageHandler extends Handler {
 		private ChatActivity uiActivity;
-		private List<String> msgs = new LinkedList<String>();
-		private Map<String, Integer> delayed = new TreeMap<String, Integer>();
+		private List<String> msgs = new ArrayList<String>(20);
+		private LinkedList<JSONObject> delayed = new LinkedList<JSONObject>();
 
 		public void setUiActivity(ChatActivity uiActivity) {
 			this.uiActivity = uiActivity;
@@ -131,6 +131,15 @@ public class ChatManager {
 			delayed.clear();
 		}
 
+		public void deliverMessage(String sender, String msg) {
+			String text = sender + ": " + msg;
+			msgs.add(text);
+			ListView v = (ListView) uiActivity.findViewById(R.id.list_view_messages);
+			String[] arMsgs = new String[msgs.size()];
+			v.setAdapter(new ArrayAdapter<String>(uiActivity, R.layout.li_msg, msgs.toArray(arMsgs)));
+			v.smoothScrollToPosition(msgs.size());
+		}
+
 		@Override
 		public void handleMessage(Message msg) {
 			super.handleMessage(msg);
@@ -139,19 +148,19 @@ public class ChatManager {
 			}
 			try {
 				JSONObject o = new JSONObject(msg.getData().getString("msg"));
-				String text = o.getString("text");
 				if (o.has("sender")) {
 					// only filter messages if a sender is set (local msgs dont have it)
 					if (!acceptMessage(o)) {
 						return;
 					}
-					text = o.getString("sender") + ": " + text;
+					if (isDeliverable(o)) {
+						String text = o.getString("text");
+						deliverMessage(o.getString("sender"), text);
+					}
+				} else {
+					String text = o.getString("text");
+					deliverMessage(user, text);
 				}
-				msgs.add(text);
-				ListView v = (ListView) uiActivity.findViewById(R.id.list_view_messages);
-				String[] arMsgs = new String[msgs.size()];
-				v.setAdapter(new ArrayAdapter<String>(uiActivity, R.layout.li_msg, msgs.toArray(arMsgs)));
-				v.smoothScrollToPosition(msgs.size());
 			} catch (JSONException e) {
 				e.printStackTrace();
 			}
@@ -178,14 +187,18 @@ public class ChatManager {
 			JSONObject vecTime = msgObject.getJSONObject("time_vector");
 			@SuppressWarnings("unchecked")
 			String sender = msgObject.getString("sender");
-			int idx = sender.equals("Server") ? 0
-					: (sender.equals("QuestionBot") ? 1
-					: (sender.equals("AnswerBot") ? 2 : -1));
+
+			// TODO: find better way to implement that w.r.t. dynamic clients
+			int idx = sender.equals("QuestionBot") ? 1
+					: sender.equals("AnswerBot") ? 2
+					: -1;
+
+			boolean enqueue = false;
+			boolean dequeue = false;
+
 			Iterator<String> i = vecTime.keys();
 			while (i.hasNext()) {
 				String s = i.next();
-				boolean enqueue = false;
-				boolean dequeue = false;
 				if (clocks.containsKey(s)) {
 					// We already have the clock
 					int key = Integer.parseInt(s);
@@ -198,7 +211,7 @@ public class ChatManager {
 							// put it in the queue and wait for missing msgs
 							enqueue = true;
 						}
-					} else {
+					} else if (theirs < ours) {
 						// late msg, others might be waiting on it
 						dequeue = true;
 					}
@@ -206,11 +219,34 @@ public class ChatManager {
 					// There's a new clock
 					clocks.put(s, vecTime.getInt(s));
 				}
-				if (enqueue) {
-					// enqueue
-				}
-				if (dequeue) {
-					// dequeue
+			}
+
+			if (enqueue) {
+				delayed.add(msgObject);
+			}
+			if (dequeue) {
+				for (int n = 0; n < delayed.size(); ++n) {
+					JSONObject o = delayed.get(n);
+					// TODO: find better way to implement that w.r.t. dynamic clients
+					idx = sender.equals("QuestionBot") ? 1
+						: sender.equals("AnswerBot") ? 2
+						: -1;
+					Iterator<String> j = vecTime.keys();
+					while (j.hasNext()) {
+						String s = j.next();
+						int key = Integer.parseInt(s);
+						if (idx != key)
+							continue;
+						int ours = clocks.get(s);
+						int theirs = vecTime.getInt(s);
+						if (idx == key && theirs - ours == 1) {
+							clocks.put(s, theirs);
+							delayed.remove(n);
+							n = 0; // restart looping
+							deliverMessage(o.getString("sender"), o.getString("text"));
+							break;
+						}
+					}
 				}
 			}
 			return true;
