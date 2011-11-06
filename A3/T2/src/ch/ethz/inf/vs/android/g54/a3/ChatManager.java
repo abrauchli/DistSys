@@ -7,11 +7,9 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
 import org.json.JSONException;
@@ -94,7 +92,6 @@ public class ChatManager {
 						m.setData(b);
 						m.sendToTarget();
 					} catch (InterruptedIOException e) {
-						//TODO: does not help...
 						// receive hit the timeout
 						if (--keepalive == 0) {
 							// send a little info every now and then to prevent
@@ -121,25 +118,28 @@ public class ChatManager {
 
 	class MessageHandler extends Handler {
 		private ChatActivity uiActivity;
-		private List<String> msgs = new ArrayList<String>(20);
+		private ArrayAdapter<String> msgs;
 		private LinkedList<JSONObject> delayed = new LinkedList<JSONObject>();
+		private ListView view;
 
 		public void setUiActivity(ChatActivity uiActivity) {
 			this.uiActivity = uiActivity;
+			msgs = new ArrayAdapter<String>(uiActivity, R.layout.li_msg);
+			view = (ListView) uiActivity.findViewById(R.id.list_view_messages);
+			view.setAdapter(msgs);
 		}
 
 		public void clearMessages() {
+			assert (view != null);
 			msgs.clear();
 			delayed.clear();
 		}
 
 		public void deliverMessage(String sender, String msg) {
+			assert (view != null);
 			String text = sender + ": " + msg;
 			msgs.add(text);
-			ListView v = (ListView) uiActivity.findViewById(R.id.list_view_messages);
-			String[] arMsgs = new String[msgs.size()];
-			v.setAdapter(new ArrayAdapter<String>(uiActivity, R.layout.li_msg, msgs.toArray(arMsgs)));
-			v.smoothScrollToPosition(msgs.size());
+			view.smoothScrollToPosition(msgs.getCount());
 		}
 
 		@Override
