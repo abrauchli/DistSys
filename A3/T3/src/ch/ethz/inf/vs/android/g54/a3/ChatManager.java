@@ -21,6 +21,12 @@ import android.os.Message;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+/**
+ * Management singleton class responsible for
+ *  - Connection setup
+ *  - Listener thread (inner class)
+ *  - Message handling (inner class)
+ */
 public class ChatManager {
 	// Singleton
 	private static ChatManager instance;
@@ -31,9 +37,12 @@ public class ChatManager {
 		return instance;
 	}
 
+	/** Tag applied to messages to identify group messages */
 	final String MESSAGE_TAG = "[g54]";
+	/** Whitelisted non group senders */
 	final String[] SENDER_WHITELIST = { "Server", "QuestionBot", "AnswerBot" };
 	final String SERVER = "vswot.inf.ethz.ch";
+	/** Max. Message size */
 	final int MESSAGE_BUFFER_SIZE = 2048;
 
 	String user = "Llama";
@@ -48,6 +57,7 @@ public class ChatManager {
 
 	private ChatManager() {
 		try {
+			// Setup the connection
 			InetAddress adrServer = InetAddress.getByName(SERVER);
 			sockCmd = new DatagramSocket(4000);
 			sockCmd.setSoTimeout(10 * 1000); // read timeout of 10s
@@ -64,6 +74,10 @@ public class ChatManager {
 		return this.handler;
 	}
 
+	/**
+	 * Thread responsible for receiving messages and passing them
+	 * on to the handler
+	 */
 	class ChatThread extends Thread {
 		boolean initShutdown = false;
 		DatagramSocket sockMsg = null;
@@ -116,6 +130,11 @@ public class ChatManager {
 		}
 	}
 
+	/**
+	 * Class responsible for handling incoming and outgoing messages
+	 * Make sure to initialize it correctly by setting the uiActivity
+	 * before using it
+	 */
 	class MessageHandler extends Handler {
 		private ChatActivity uiActivity;
 		private ArrayAdapter<String> msgs;
@@ -135,6 +154,7 @@ public class ChatManager {
 			delayed.clear();
 		}
 
+		/** Display a message to the user */
 		public void deliverMessage(String sender, String msg) {
 			assert (view != null);
 			String text = sender + ": " + msg;
@@ -142,6 +162,10 @@ public class ChatManager {
 			view.smoothScrollToPosition(msgs.getCount());
 		}
 
+		/**
+		 * Handle a message deciding whether it should be
+		 * delivered now or later or filtered out completely
+		 */
 		@Override
 		public void handleMessage(Message msg) {
 			super.handleMessage(msg);
@@ -153,11 +177,13 @@ public class ChatManager {
 				if (o.has("sender")) {
 					// only filter messages if a sender is set (local msgs dont have it)
 					if (!acceptMessage(o)) {
-						return;
+						return; // discard the message
 					}
 					if (isDeliverable(o)) {
+						// Message is deliverable
 						String text = o.getString("text");
 						deliverMessage(o.getString("sender"), text);
+						// Try to deliver pending messages
 						dequeueMessages();
 					}
 				} else {
@@ -169,6 +195,9 @@ public class ChatManager {
 			}
 		}
 
+		/**
+		 * Filter deciding whether to filter out a message or not
+		 */
 		private boolean acceptMessage(JSONObject o) throws JSONException {
 			// filter on message tags
 			if (o.has("tag")) {
@@ -186,6 +215,10 @@ public class ChatManager {
 			return false;
 		}
 
+		/**
+		 * Decide whether the message is deliverable or has to be queued
+		 * waiting for prior messages
+		 */
 		private boolean isDeliverable(JSONObject msgObject) throws JSONException {
 			JSONObject vecTime = msgObject.getJSONObject("time_vector");
 			String sender = msgObject.getString("sender");
@@ -233,12 +266,15 @@ public class ChatManager {
 			return !enqueue;
 		}
 
+		/** Try to deliver pending messages */
 		public void dequeueMessages() throws JSONException {
+			// loop over all pending messages
 			for (int n = 0; n < delayed.size(); ++n) {
 				JSONObject o = delayed.get(n);
 				String sender = o.getString("sender");
 				JSONObject vecTime = o.getJSONObject("time_vector");
 
+				// Get the clock index of the sender
 				int idx = sender.equals("QuestionBot") ? 1
 					: sender.equals("AnswerBot") ? 2
 					: o.has("index") ? o.getInt("index")
@@ -248,22 +284,24 @@ public class ChatManager {
 				int newVal = -1;
 				boolean abort = false;
 
+				// Loop over clock indices of incoming message
 				while (j.hasNext()) {
 					String s = j.next();
 					int key = Integer.parseInt(s);
 					if (idx < 0)
-						continue;
+						continue; // This index belongs to a discarded client, skip it
 					int ours = clocks.get(s);
 					int theirs = vecTime.getInt(s);
 					if (idx == key && theirs - ours == 1) {
-						newVal = theirs;
+						newVal = theirs; // Candidate for delivery
 					} else if (theirs - ours > 0){
-						abort = true;
+						abort = true; // Cannot be delivered yet
 						break;
 					}
 				}
 
 				if (!abort && newVal > -1) {
+					// Message is now deliverable
 					clocks.put(Integer.toString(idx), newVal);
 					delayed.remove(n);
 					n = 0; // restart looping
@@ -331,6 +369,7 @@ public class ChatManager {
 
 	}
 	
+	/** Send a JSON command to the server */
 	private JSONObject execCmd(String cmd, boolean receive) {
 		try {
 			byte[] req = cmd.getBytes();
@@ -340,6 +379,7 @@ public class ChatManager {
 			byte[] ans = new byte[MESSAGE_BUFFER_SIZE];
 			pkt = new DatagramPacket(ans, ans.length);
 			if (receive) {
+				// Wait for an answer
 				sockCmd.receive(pkt); // blocking read
 				return new JSONObject(new String(pkt.getData()));
 			}
@@ -352,8 +392,9 @@ public class ChatManager {
 		return null;
 	}
 
+	/** Send a new text message to the server */
 	public void sendMsg(String text) {
-		String json = cmdMsg(text, clocks);
+		String json = cmdMsg(text, clocks); // create json string with msg and clocks
 		execCmd(json, false);
 		Message m = handler.obtainMessage();
 		Bundle b = new Bundle();
@@ -362,6 +403,7 @@ public class ChatManager {
 		m.sendToTarget();
 	}
 
+	/** Increase our clock */
 	private void incClockTick() {
 		clocks.put(clockIdx, clocks.get(clockIdx) + 1);
 	}
@@ -399,20 +441,22 @@ public class ChatManager {
 			}
 			*/
 
-			chatThread = new ChatThread(handler);
-			chatThread.start();
+			chatThread = new ChatThread(handler); // Create listener thread
+			chatThread.start(); // Start listening for messages
 			return true;
 		} catch (JSONException e) {
+			// Something bad happened.
 			e.printStackTrace();
 			return false;
 		}
 	}
 
+	/** Disconnect from server */
 	public void disconnect() {
 		if (chatThread.isAlive()) {
 			chatThread.initShutdown();
 			try {
-				chatThread.join();
+				chatThread.join(); // Wait for listener thread to terminate
 
 				JSONObject o = execCmd(cmdDereg(), true); // answer {"success":"dreg_ok"}
 				assert (o.getString("success").equals("dreg_ok"));
@@ -422,9 +466,10 @@ public class ChatManager {
 				e.printStackTrace();
 			}
 		}
-		handler.clearMessages();
+		handler.clearMessages(); // Clear all messages, readying for next run
 	}
 
+	/** Set a username. Do this before connecting */
 	public void setUser(String user) {
 		this.user = user;
 	}
