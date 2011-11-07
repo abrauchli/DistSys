@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="hello">Hello World, MainActivity!</string>
     <string name="app_name">VS_G54_A3_2</string>
-    <string name="enter_username">paul</string>
+    <string name="txt_enter_username">Please enter your username...</string>
     <string name="txt_btn_register">Register</string>
     <string name="txt_vector_clocks">Vector Clocks</string>
     <string name="txt_chat_application">Chat Application</string>
-    <string name="txt_empty_string"></string>
     <string name="txt_btn_send">Send</string>
     <string name="txt_btn_deregister">Deregister</string>
     <string name="txt_et_input_line">Enter your message here...</string>
