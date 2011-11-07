@@ -225,10 +225,15 @@ public class ChatManager {
 			int theirs = msgObject.getJSONObject("time_vector").getInt("0");
 			int ours = clocks.get("0");
 			if (theirs > ours + 1) {
+				// Early message, based on the fact that we know our tick policy
+				// (Q and A Bots increment by one, so do we).
+				// NOTE THAT ALL MESSAGES WOULD BE STALLED,
+				// Should an higher increment be used!
 				assert (!delayed.containsKey(theirs));
 				delayed.put(theirs, msgObject);
 				return false;
 			} else if (theirs > ours) {
+				// Increment our clock to the received message's
 				clocks.put("0", theirs);
 			}
 			return true;
@@ -236,8 +241,10 @@ public class ChatManager {
 
 		/** Try to deliver pending messages */
 		public void dequeueMessages() throws JSONException {
+			// Get all queued messages that are older than our current clock
 			SortedMap<Integer, JSONObject> deq = delayed.headMap(clocks.get("0") + 1);
 			while(deq.size() > 0) {
+				// deliver message, remove it from the queue
 				int i = deq.firstKey();
 				JSONObject o = deq.get(i);
 				deliverMessage(o.getString("sender"), o.getString("text"));
