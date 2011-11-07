@@ -29,15 +29,13 @@ public final class R {
         public static final int main=0x7f030002;
     }
     public static final class string {
-        public static final int app_name=0x7f040001;
-        public static final int enter_username=0x7f040002;
-        public static final int hello=0x7f040000;
-        public static final int txt_btn_deregister=0x7f040008;
-        public static final int txt_btn_register=0x7f040003;
-        public static final int txt_btn_send=0x7f040007;
-        public static final int txt_chat_application=0x7f040005;
-        public static final int txt_empty_string=0x7f040006;
-        public static final int txt_et_input_line=0x7f040009;
-        public static final int txt_lamport_timestamps=0x7f040004;
+        public static final int app_name=0x7f040000;
+        public static final int txt_btn_deregister=0x7f040006;
+        public static final int txt_btn_register=0x7f040002;
+        public static final int txt_btn_send=0x7f040005;
+        public static final int txt_chat_application=0x7f040004;
+        public static final int txt_enter_username=0x7f040001;
+        public static final int txt_et_input_line=0x7f040007;
+        public static final int txt_lamport_timestamps=0x7f040003;
     }
 }
